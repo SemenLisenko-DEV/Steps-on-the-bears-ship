@@ -1,15 +1,16 @@
 using ActionDatabase;
 using System.Collections;
 using UnityEngine;
-public class AnimationActivator : MonoBehaviour, IAction
+public class AnimationActivator : MonoBehaviour, IAction,IQuest
 {
     private bool _wait = false;
     public Animator _animator;
     [SerializeField] private float _waitTime;
     [SerializeField]public string boolName = "";
     [SerializeField] private AudioDictionary _audioDictionary;
+    [SerializeField] private bool _blockByQuest;
+    [SerializeField] private bool _disabledByQuest;
     private AudioSource _audioSource;
-
     private bool status = false;
     public void Start()
     {
@@ -20,9 +21,23 @@ public class AnimationActivator : MonoBehaviour, IAction
         if(Time.timeScale == 0) { _audioSource.Pause(); } else { _audioSource.UnPause(); }
 
     }
+    public void StartQuest()
+    {
+        if (_blockByQuest)
+        {
+            _blockByQuest = false;
+        }
+        if(_disabledByQuest)
+        {
+            _audioSource.clip = _audioDictionary.find("True");
+            _audioSource.Play();
+            _animator.SetBool(boolName, true);
+            status = true;
+        }
+    }
     public void StartEvent()
     {
-        if(_wait) { return; }
+        if(_wait || _blockByQuest || _disabledByQuest) { return; }
         if (!status)
         {
             _audioSource.clip = _audioDictionary.find("True");

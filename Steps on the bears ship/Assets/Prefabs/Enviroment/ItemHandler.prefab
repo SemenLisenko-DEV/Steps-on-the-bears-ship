@@ -321,7 +321,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -331,7 +331,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 5
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -426,10 +426,12 @@ MonoBehaviour:
       value: {fileID: 8300000, guid: c76889389a1580d4a98347a9e0763484, type: 3}
     - key: UnLock
       value: {fileID: 8300000, guid: b5dca8e48fb90604da451a4c377f9361, type: 3}
-  canTakeOut: 1
+  canTakeOut: 0
   _itemPosition: {fileID: 1480898322124829864}
-  item: {fileID: 0}
   allowedType: 2
+  _questTarget: {fileID: 0}
+  _triggerMultiply: 0
+  item: {fileID: 0}
 --- !u!1 &5658888029166787043
 GameObject:
   m_ObjectHideFlags: 0

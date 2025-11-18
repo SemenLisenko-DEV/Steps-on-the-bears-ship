@@ -6,9 +6,12 @@ public class ItemHandler : MonoBehaviour,IAction
     [SerializeField] private AudioDictionary _audioDictionary;
     [SerializeField] private bool canTakeOut = false;
     [SerializeField] private Transform _itemPosition;
+    public ItemType allowedType;
+    [SerializeField,Header("Quest system")] private GameObject _questTarget;
+    [SerializeField] private bool _triggerMultiply;
+    private bool _isTriggered = false;
     private AudioSource _audioSource;
     [HideInInspector] public Item item;
-    public ItemType allowedType;
     public void Start()
     {
         _audioSource = GetComponent<AudioSource>();
@@ -17,7 +20,7 @@ public class ItemHandler : MonoBehaviour,IAction
     {
         if (ItemPosition.haveItem && item == null) 
         {
-            if (ItemPosition.item.itemType == allowedType )
+            if (ItemPosition.item.itemType == allowedType)
             {
                 item = ItemPosition.item;
                 StartCoroutine(item.moveToLock(_itemPosition));
@@ -25,6 +28,11 @@ public class ItemHandler : MonoBehaviour,IAction
                 item.handler = this;
                 _audioSource.clip = _audioDictionary.find("Lock");
                 _audioSource.Play();
+                if(_questTarget != null && (!_isTriggered || _triggerMultiply))
+                {
+                    _isTriggered = true;
+                    _questTarget.GetComponent<IQuest>().StartQuest();
+                }
             }
             else
             {
