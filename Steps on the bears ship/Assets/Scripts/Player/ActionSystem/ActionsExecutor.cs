@@ -23,7 +23,7 @@ public class ActionsExecutor : MonoBehaviour
     private Pair<int, Sprite> _currentAim = new Pair<int, Sprite>();
     void Start()
     {
-        SetAim(0, _spriteDictionary.find("defaultAim"));
+        SetAim(0, _spriteDictionary.Find("defaultAim"));
         _audioSource = GetComponent<AudioSource>();
         _camera = GetComponent<Camera>();
         StartCoroutine(RayExecute());
@@ -40,10 +40,10 @@ public class ActionsExecutor : MonoBehaviour
             if (hit.transform.TryGetComponent(out tip))
             {
 
-                SetAim(1, _spriteDictionary.find("bearHand"));
+                SetAim(1, _spriteDictionary.Find("bearHand"));
             }
         }
-        SetAim(0, _spriteDictionary.find("defaultAim"));
+        SetAim(0, _spriteDictionary.Find("defaultAim"));
     }
     private void LateUpdate()
     {
@@ -84,7 +84,7 @@ public class ActionsExecutor : MonoBehaviour
         {
             ray = _camera.ScreenPointToRay(Input.mousePosition);
             actionExecuting = true;
-            SetAim(3, _spriteDictionary.find("bearHand_Close"));
+            SetAim(3, _spriteDictionary.Find("bearHand_Close"));
             yield return new WaitForEndOfFrame();
         }
         actionExecuting = false;
@@ -100,7 +100,7 @@ public class ActionsExecutor : MonoBehaviour
             yield break;
         }
 
-        _audioSource.clip = _audioDictionary.find("Charge");
+        _audioSource.clip = _audioDictionary.Find("Charge");
         _audioSource.Play();
         float time = 0;
         while (Input.GetButton("MouseRight"))
@@ -112,7 +112,7 @@ public class ActionsExecutor : MonoBehaviour
         }
         _audioSource.Stop();
 
-        _audioSource.clip = _audioDictionary.find("Throw");
+        _audioSource.clip = _audioDictionary.Find("Throw");
         _audioSource.Play();
 
         _chargeDisplay.fillAmount = 0f;

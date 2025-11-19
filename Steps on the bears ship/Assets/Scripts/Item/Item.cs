@@ -36,7 +36,7 @@ public class Item : MonoBehaviour, IAction
         }
         if (handler != null) { handler.TakeOut(); }
         UnLock();
-        audioSource.clip = _audioClips.find("PickUp");
+        audioSource.clip = _audioClips.Find("PickUp");
         audioSource.Play();
         _isPickUp = true;
         rigidBody.useGravity = false;

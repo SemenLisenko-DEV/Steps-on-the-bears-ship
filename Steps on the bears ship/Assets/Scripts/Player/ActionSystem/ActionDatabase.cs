@@ -28,12 +28,16 @@ namespace ActionDatabase
             public AudioClip value;
         }
         public AudioPair[] elements;
-        public AudioClip find(string key)
+        public AudioClip Find(string key)
         {
             for (int i = 0; i < elements.Length; i++)
             {
                 if (elements[i].key == key)
                 {
+                    if (elements[i].value == null)
+                    {
+                        Resources.Load<AudioClip>("Audio/MisingAudio");
+                    }
                     return elements[i].value;
                 }
             }
@@ -50,12 +54,16 @@ namespace ActionDatabase
             public Sprite value;
         }
         public SpritePair[] elements;
-        public Sprite find(string key)
+        public Sprite Find(string key)
         {
             for (int i = 0; i < elements.Length; i++)
             {
                 if (elements[i].key == key)
                 {
+                    if (elements[i].value == null)
+                    {
+                        return Resources.Load<Sprite>("Spites/MissingSprite");
+                    }
                     return elements[i].value;
                 }
             }

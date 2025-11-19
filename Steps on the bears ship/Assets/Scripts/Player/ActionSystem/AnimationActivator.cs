@@ -29,7 +29,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         }
         if(_disabledByQuest)
         {
-            _audioSource.clip = _audioDictionary.find("True");
+            _audioSource.clip = _audioDictionary.Find("True");
             _audioSource.Play();
             _animator.SetBool(boolName, true);
             status = true;
@@ -40,14 +40,14 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         if(_wait || _blockByQuest || _disabledByQuest) { return; }
         if (!status)
         {
-            _audioSource.clip = _audioDictionary.find("True");
+            _audioSource.clip = _audioDictionary.Find("True");
             _audioSource.Play();
             _animator.SetBool(boolName, true);
             status = true;
         }
         else
         {
-            _audioSource.clip = _audioDictionary.find("False");
+            _audioSource.clip = _audioDictionary.Find("False");
             _audioSource.Play();
             _animator.SetBool(boolName, false);
             status = false;

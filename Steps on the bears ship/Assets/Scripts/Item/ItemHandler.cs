@@ -26,7 +26,7 @@ public class ItemHandler : MonoBehaviour,IAction
                 StartCoroutine(item.moveToLock(_itemPosition));
                 item.canPickUp = canTakeOut;
                 item.handler = this;
-                _audioSource.clip = _audioDictionary.find("Lock");
+                _audioSource.clip = _audioDictionary.Find("Lock");
                 _audioSource.Play();
                 if(_questTarget != null && (!_isTriggered || _triggerMultiply))
                 {
@@ -36,21 +36,21 @@ public class ItemHandler : MonoBehaviour,IAction
             }
             else
             {
-                _audioSource.clip = _audioDictionary.find("Error");
+                _audioSource.clip = _audioDictionary.Find("Error");
                 _audioSource.Play();
             }
         }
     }
     public void ErrorSound()
     {
-        _audioSource.clip = _audioDictionary.find("Error");
+        _audioSource.clip = _audioDictionary.Find("Error");
         _audioSource.Play();
     }
     public void TakeOut()
     {
         item.handler = null;
         item = null;
-        _audioSource.clip = _audioDictionary.find("UnLock");
+        _audioSource.clip = _audioDictionary.Find("UnLock");
         _audioSource.Play();
     }
 }

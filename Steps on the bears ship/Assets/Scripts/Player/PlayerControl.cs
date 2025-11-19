@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 
 public class PlayerControl : MonoBehaviour
 {
+    public static PlayerControl Instance { get; private set; }
+
     [HideInInspector] public string floorType = "default";
     [SerializeField] private Transform _camera;
     [SerializeField] private AudioDictionary _audioDictionary;
@@ -16,7 +18,7 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private float _gravity = -9.81f;
     public float moveSpeed = 5.0f;
 
-
+    [HideInInspector] public float speedMultiplier = 1f;
     private bool _canStand = true;
     private Vector3 yDirection;
     private AudioSource _audioSource;
@@ -24,6 +26,7 @@ public class PlayerControl : MonoBehaviour
 
     private void Start()
     {
+        Instance = this;
         _audioSource = GetComponent<AudioSource>();
         _controller = GetComponent<CharacterController>();
         StartCoroutine(Squat());
@@ -35,14 +38,14 @@ public class PlayerControl : MonoBehaviour
 
         _canStand = !Physics.Raycast(transform.position + transform.up * _controller.height / 2, transform.up, 2f, _obstacleMask);
 
-        _audioSource.pitch = Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0? (moveSpeed / _standSpeed) : 0;
+        _audioSource.pitch = Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0? ((moveSpeed * speedMultiplier) / _standSpeed) : 0;
 
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
         Vector3 moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
 
-        _controller.Move(moveDirection * moveSpeed * Time.deltaTime + yDirection * Time.deltaTime);
+        _controller.Move(moveDirection * (moveSpeed * speedMultiplier) * Time.deltaTime + yDirection * Time.deltaTime);
     }
     private IEnumerator Squat()
     {
