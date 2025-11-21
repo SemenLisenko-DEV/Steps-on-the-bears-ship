@@ -6,7 +6,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     private bool _wait = false;
     public Animator _animator;
     [SerializeField] private float _waitTime;
-    [SerializeField]public string boolName = "";
+    [SerializeField] private string boolName = "";
     [SerializeField] private AudioDictionary _audioDictionary;
     [SerializeField] private bool _blockByQuest;
     [SerializeField] private bool _disabledByQuest;
@@ -32,7 +32,6 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
             _audioSource.clip = _audioDictionary.Find("True");
             _audioSource.Play();
             _animator.SetBool(boolName, true);
-            status = true;
         }
     }
     public void StartEvent()

@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class ActionsExecutor : MonoBehaviour
 {
     public static bool actionExecuting = false;
-    public static RaycastHit executerLastHit;
 
     private Camera _camera;
     public LayerMask actionMask;
@@ -71,6 +70,7 @@ public class ActionsExecutor : MonoBehaviour
         RaycastHit hit;
         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
         Physics.Raycast(ray, out hit,_maxRange,actionMask);
+        GameObject hitPoint = null;
         if(hit.collider != null)
         {
             IAction action;
@@ -79,14 +79,19 @@ public class ActionsExecutor : MonoBehaviour
                 actionExecuting = true;
                 action.StartEvent();
             }
+            hitPoint = Instantiate(Resources.Load<GameObject>("Prefabs/ActionHelper/Sphere"), hit.point, Quaternion.identity, hit.collider.transform);
         }
-        while(Input.GetButton("MouseLeft") && Physics.Raycast(ray,out executerLastHit, _maxRange, actionMask))
+        while (Input.GetButton("MouseLeft") && Physics.Raycast(ray, _maxRange, actionMask))
         {
+            CameraControl.Instance.block = true;
+            CameraControl.Instance.LookAt(hitPoint.transform.position);
             ray = _camera.ScreenPointToRay(Input.mousePosition);
             actionExecuting = true;
             SetAim(3, _spriteDictionary.Find("bearHand_Close"));
             yield return new WaitForEndOfFrame();
         }
+        if(hitPoint != null) { Destroy(hitPoint); }
+        CameraControl.Instance.block = false;
         actionExecuting = false;
         StartCoroutine(RayExecute());
     }
