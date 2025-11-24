@@ -1,24 +1,39 @@
 using ActionDatabase;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Item : MonoBehaviour, IAction
 {
+    public string id;
+
+    //сохранить:
+    [HideInInspector] public bool isPickUp = false;
+    public bool canPickUp = true;
+    [HideInInspector] public Vector_Clear position;
+    [HideInInspector] public Vector_Clear rotation;
+    //дальше не сохранять
+
+    public static List<Item> items = new List<Item>();
+
     public ItemType itemType;
     [SerializeField] private AudioDictionary _audioClips;
     [HideInInspector] public Rigidbody rigidBody;
-    private bool _isPickUp = false;
 
     [HideInInspector] public ItemHandler handler = null;
-    public bool canPickUp = true;
 
     private IEnumerator _followPlayerCoroutine;
     [SerializeField] public AudioSource audioSource = null;
-    public void OnEnable()
+    public void Awake()
     {
+        items.Add(this);
         audioSource = GetComponent<AudioSource>();
         _followPlayerCoroutine = FollowPlayer();
         rigidBody = GetComponent<Rigidbody>();
+        SaveLoadControl.SaveEvent += Save;
     }
     public void StartEvent()
     {
@@ -38,7 +53,7 @@ public class Item : MonoBehaviour, IAction
         UnLock();
         audioSource.clip = _audioClips.Find("PickUp");
         audioSource.Play();
-        _isPickUp = true;
+        isPickUp = true;
         rigidBody.useGravity = false;
         ItemPosition.item = this;
         ItemPosition.haveItem = true;
@@ -63,7 +78,7 @@ public class Item : MonoBehaviour, IAction
         rigidBody.angularVelocity = Vector3.zero;
         ItemPosition.haveItem = false;
         ItemPosition.item = null;
-        _isPickUp = false;
+        isPickUp = false;
         rigidBody.useGravity = true;
     }
     public IEnumerator moveToLock(Transform target)
@@ -86,12 +101,41 @@ public class Item : MonoBehaviour, IAction
     {
         rigidBody.constraints = RigidbodyConstraints.None;
     }
+    public static Item GetItem(string id)
+    {
+        foreach(Item i in items)
+        {
+            if(Equals(i.id,id))
+            {
+                return i;
+            }
+        }
+        return null;
+    }
     private void OnDestroy()
     {
-        if(_isPickUp)
+        if(isPickUp)
         {
             ItemPosition.ItemsDrops -= Drop;
             ItemPosition.haveItem = false;
         }
+        SaveLoadControl.SaveEvent -= Save;
+        items.Remove(this);
+    }
+    public void Save()
+    {
+        position = new Vector_Clear(transform.position);
+        rotation = new Vector_Clear(transform.rotation);
+        SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.items,id);
+        SaveLoadControl.gameData.items.Add(new ItemData(this));
+    }
+    public void Load()
+    {
+        ItemData item = SaveLoadControl.gameData.GetData(ref SaveLoadControl.gameData.items,id);
+        if(item == null) { return; }
+        isPickUp = item.isPickUp;
+        canPickUp = item.canPickUp;
+        transform.position = item.position.ToVector3();
+        transform.rotation = item.rotation.ToQuaternion();
     }
 }

@@ -1,20 +1,33 @@
 using ActionDatabase;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 public class AnimationActivator : MonoBehaviour, IAction,IQuest
 {
-    private bool _wait = false;
-    public Animator _animator;
-    [SerializeField] private float _waitTime;
-    [SerializeField] private string boolName = "";
-    [SerializeField] private AudioDictionary _audioDictionary;
-    [SerializeField] private bool _blockByQuest;
-    [SerializeField] private bool _disabledByQuest;
-    private AudioSource _audioSource;
-    private bool status = false;
-    public void Start()
+    public string id;
+
+    //сохранить:
+    public bool blockByQuest;// отключает возможность активировать нажатием анимацию до выполения задачи
+    [HideInInspector] public bool status = false;
+    //дальше не сохранять
+
+    [SerializeField, JsonIgnore] public static List<AnimationActivator> animationActivators = new List<AnimationActivator>();
+
+    [JsonIgnore] private bool _wait = false;
+    [JsonIgnore] public Animator _animator;
+    [SerializeField, JsonIgnore] private float _waitTime;
+    [SerializeField, JsonIgnore] private string boolName = "";
+    [SerializeField, JsonIgnore] private AudioDictionary _audioDictionary;
+    [SerializeField, JsonIgnore] private bool _disabledByQuest;// полностью отключает возможность активировать нажатием анимацию
+    [JsonIgnore] private AudioSource _audioSource;
+    public void Awake()
     {
+        animationActivators.Add(this);
+        Load();
         _audioSource = GetComponent<AudioSource>();
+        SaveLoadControl.SaveEvent += Save;
     }
     public void Update()
     {
@@ -23,9 +36,9 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     }
     public void StartQuest()
     {
-        if (_blockByQuest)
+        if (blockByQuest)
         {
-            _blockByQuest = false;
+            blockByQuest = false;
         }
         if(_disabledByQuest)
         {
@@ -36,7 +49,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     }
     public void StartEvent()
     {
-        if(_wait || _blockByQuest || _disabledByQuest) { return; }
+        if(_wait || blockByQuest || _disabledByQuest) { return; }
         if (!status)
         {
             _audioSource.clip = _audioDictionary.Find("True");
@@ -63,5 +76,35 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
             yield return new WaitForEndOfFrame();
         }
         _wait = false;
+    }
+    private void OnDestroy()
+    {
+        animationActivators.Remove(this);
+        SaveLoadControl.SaveEvent -= Save;
+    }
+    public static AnimationActivator GetAnimationActivator(string id)
+    {
+        foreach (AnimationActivator i in animationActivators)
+        {
+            if (Equals(i.id, id))
+            {
+                return i;
+            }
+        }
+        return null;
+    }
+    public void Save()
+    {
+        if(Equals(id,"")) { return; }
+        SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.animationActivators, id);
+        SaveLoadControl.gameData.animationActivators.Add(new AnimationActivatorData(this));
+    }
+    public void Load()
+    {
+        AnimationActivatorData animationActivator = SaveLoadControl.gameData.GetData(ref SaveLoadControl.gameData.animationActivators,id);
+        if (animationActivator == null) { return; }
+        blockByQuest = animationActivator.blockByQuest;
+        status = animationActivator.status;
+        _animator.SetBool(boolName, status);
     }
 }

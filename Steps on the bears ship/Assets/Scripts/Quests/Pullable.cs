@@ -1,19 +1,33 @@
 using ActionDatabase;
+using Newtonsoft.Json;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Pullable : MonoBehaviour,IAction
 {
+    public string id;
+
+    //сохранить:
+    [HideInInspector] public Vector_Clear position;
+    //дальше не сохранять
+
+    [HideInInspector, JsonIgnore] public static List<Pullable> pullables = new List<Pullable>();
+
     private AudioSource _audioSource;
-    [SerializeField] private AudioDictionary _audioDictionary;
-    [SerializeField] private Vector3 _allowedDirection;
-    [SerializeField] private Vector3 _pullableZone;
-    [SerializeField] private Vector3 _startPositon;
-    [SerializeField] private float _speedIntake = 1f;
-    [SerializeField] private float _pitchMultiplier;
-    public void Start()
+    [SerializeField, JsonIgnore] private AudioDictionary _audioDictionary;
+    [SerializeField, JsonIgnore] private Vector3 _allowedDirection;
+    [SerializeField, JsonIgnore] private Vector3 _pullableZone;
+    [SerializeField, JsonIgnore] private Vector3 _startPositon;
+    [SerializeField, JsonIgnore] private float _speedIntake = 1f;
+    [SerializeField, JsonIgnore] private float _pitchMultiplier;
+    public void Awake()
     {
+        pullables.Add(this);
+        Load();
         _audioSource = GetComponent<AudioSource>(); 
+        pullables.Add(this);
+        SaveLoadControl.SaveEvent += Save;
     }
     public void StartEvent()
     {
@@ -57,5 +71,32 @@ public class Pullable : MonoBehaviour,IAction
         PlayerControl.Instance.speedMultiplier = 1f;
         yield break;
     }
-
+    private void OnDestroy()
+    {
+        pullables.Remove(this);
+        SaveLoadControl.SaveEvent -= Save;
+    }
+    public static Pullable GetPullable(string id)
+    {
+        foreach (Pullable i in pullables)
+        {
+            if (Equals(i.id, id))
+            {
+                return i;
+            }
+        }
+        return null;
+    }
+    public void Save()
+    {
+        position = new Vector_Clear(transform.position);
+        SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.pullable, id);
+        SaveLoadControl.gameData.pullable.Add(new PullableData(this));
+    }
+    public void Load()
+    {
+        PullableData pullable = SaveLoadControl.gameData.GetData(ref SaveLoadControl.gameData.pullable,id);
+        if (pullable == null) { return; }
+        transform.position = pullable.position.ToVector3();
+    }
 }

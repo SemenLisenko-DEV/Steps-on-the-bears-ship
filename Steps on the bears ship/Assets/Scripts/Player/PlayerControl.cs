@@ -18,6 +18,7 @@ public class PlayerControl : MonoBehaviour
     public float moveSpeed = 5.0f;
 
     [HideInInspector] public float speedMultiplier = 1f;
+    [HideInInspector] public string itemId = "";
     private bool _canStand = true;
     private Vector3 yDirection;
     private AudioSource _audioSource;
@@ -28,7 +29,9 @@ public class PlayerControl : MonoBehaviour
         Instance = this;
         _audioSource = GetComponent<AudioSource>();
         _controller = GetComponent<CharacterController>();
+        Load();
         StartCoroutine(Squat());
+        SaveLoadControl.SaveEvent += Save;
     }
 
     private void Update()
@@ -52,7 +55,7 @@ public class PlayerControl : MonoBehaviour
         yield return new WaitUntil(() => Input.GetButtonDown("Squat"));
 
         moveSpeed = _squatSpeed;
-
+        SaveLoadControl.blockSaving = true;
         while (_controller.height > _squatHeight)
         {
             _controller.height -= Time.deltaTime * moveSpeed * 5;
@@ -60,6 +63,7 @@ public class PlayerControl : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         _controller.height = _squatHeight;
+        SaveLoadControl.blockSaving = false;
         _camera.localPosition = new Vector3(0, 0.5f, 0);
 
         yield return new WaitWhile(() => Input.GetButton("Squat") || !_canStand);
@@ -80,5 +84,20 @@ public class PlayerControl : MonoBehaviour
         _controller.height = _standHeight;
 
         StartCoroutine(Squat());
+    }
+    public void Save()
+    {
+        Player player = new Player();
+        player.position = new Vector_Clear(transform.position);
+        player.rotation = new Vector_Clear(transform.rotation);
+        player.itemId = ItemPosition.item != null? ItemPosition.item.id : "";
+        SaveLoadControl.gameData.player = player;
+        SaveLoadControl.SaveEvent -= Save;
+    }
+    public void Load()
+    {
+        if(SaveLoadControl.gameData.player == null) { return; }
+        transform.position = SaveLoadControl.gameData.player.position.ToVector3();
+        transform.rotation = SaveLoadControl.gameData.player.rotation.ToQuaternion();
     }
 }
