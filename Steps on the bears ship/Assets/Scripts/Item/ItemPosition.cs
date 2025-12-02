@@ -10,9 +10,16 @@ public class ItemPosition : MonoBehaviour
     public static Item item;
 
     [SerializeField] private Transform itemSpawnLocal;
-    public void Start()
+    public void Awake()
     {
         _transform = GetComponent<Transform>();
         itemSpawn = itemSpawnLocal;
+    }
+    private void OnDestroy()
+    {
+        _transform = null;
+        itemSpawn = null;
+        haveItem = false;
+        item = null;
     }
 }

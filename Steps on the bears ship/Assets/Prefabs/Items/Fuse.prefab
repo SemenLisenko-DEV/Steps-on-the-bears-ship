@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2034555625982057594}
   m_Layer: 6
   m_Name: Fuse
-  m_TagString: Untagged
+  m_TagString: DoNotPull
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -75,16 +75,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fb14f4e67541d34ca587160396bc089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: MishaRoom_Fuse
+  isPickUp: 0
+  canPickUp: 1
+  handlerId: 
+  position:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  rotation:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
   itemType: 2
   _audioClips:
     elements:
     - key: PickUp
       value: {fileID: 8300000, guid: 4684c20970fb35f469ce69448c18b32f, type: 3}
-    - key: Drop
-      value: {fileID: 8300000, guid: c2b0b3fcc77f4d14c9e4d7821f17b93d, type: 3}
+    - key: Hit
+      value: {fileID: 8300000, guid: 7eb201c2e39b7454685ed8106c5eb193, type: 3}
   rigidBody: {fileID: 0}
   handler: {fileID: 0}
-  canPickUp: 1
   audioSource: {fileID: 2034555625982057594}
 --- !u!65 &3186755850736744408
 BoxCollider:
@@ -99,7 +112,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -128,10 +141,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1.4391011
-  MaxDistance: 15
+  MinDistance: 1
+  MaxDistance: 6.002
   Pan2D: 0
-  rolloffMode: 2
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -164,7 +177,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.1
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -268,7 +281,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 5ea3682e72038164a85f8e54668320b3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

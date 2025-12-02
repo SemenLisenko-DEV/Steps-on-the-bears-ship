@@ -12,21 +12,21 @@ public class Pullable : MonoBehaviour,IAction
     [HideInInspector] public Vector_Clear position;
     //дальше не сохранять
 
-    [HideInInspector, JsonIgnore] public static List<Pullable> pullables = new List<Pullable>();
+    [HideInInspector] public static List<Pullable> pullables = new List<Pullable>();
 
     private AudioSource _audioSource;
-    [SerializeField, JsonIgnore] private AudioDictionary _audioDictionary;
-    [SerializeField, JsonIgnore] private Vector3 _allowedDirection;
-    [SerializeField, JsonIgnore] private Vector3 _pullableZone;
-    [SerializeField, JsonIgnore] private Vector3 _startPositon;
-    [SerializeField, JsonIgnore] private float _speedIntake = 1f;
-    [SerializeField, JsonIgnore] private float _pitchMultiplier;
+    [SerializeField] private AudioDictionary _audioDictionary;
+    [SerializeField] private Vector3 _allowedDirection;
+    [SerializeField] private Vector3 _pullableZone;
+    [SerializeField] private Vector3 _startPositon;
+    [SerializeField] private float _speedIntake = 1f;
+    [SerializeField] private float _pitchMultiplier;
     public void Awake()
     {
         pullables.Add(this);
-        Load();
         _audioSource = GetComponent<AudioSource>(); 
         pullables.Add(this);
+        Load();
         SaveLoadControl.SaveEvent += Save;
     }
     public void StartEvent()
@@ -89,6 +89,7 @@ public class Pullable : MonoBehaviour,IAction
     }
     public void Save()
     {
+        if (Equals(id, "")) { return; }
         position = new Vector_Clear(transform.position);
         SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.pullable, id);
         SaveLoadControl.gameData.pullable.Add(new PullableData(this));

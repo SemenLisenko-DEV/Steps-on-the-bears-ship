@@ -7,13 +7,18 @@ using UnityEngine;
 public class Translates : ScriptableObject
 {
     [Serializable]
-    public struct keyTranslate
+    public struct TranslateVariation
+    {
+        public string[] variations;
+    }
+    [Serializable]
+    public struct KeyTranslate
     {
         public string key;
-        public string[] translates;
+        public TranslateVariation[] translates;
     }
-    public keyTranslate[] translations;
-    public string GetTranslate(string key)
+    public KeyTranslate[] translations;
+    public string GetTranslate(string key, int translateVariation = 0)
     {
         int keyId = 0;
         for (int i = 0; i < translations.Length; i++)
@@ -24,11 +29,6 @@ public class Translates : ScriptableObject
                 break;
             }
         }
-        return translations[keyId].translates[(int)SaveLoadControl.settings.language];
-    }
-    public string GetTranslatePlaceHolder(string key, Pair<string,string> placeHolder)
-    {
-
-        return "";
+        return translations[keyId].translates[(int)SaveLoadControl.settings.language].variations[translateVariation];
     }
 }

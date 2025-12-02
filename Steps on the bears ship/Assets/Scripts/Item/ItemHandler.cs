@@ -2,7 +2,6 @@ using ActionDatabase;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class ItemHandler : MonoBehaviour,IAction
 {
@@ -28,8 +27,8 @@ public class ItemHandler : MonoBehaviour,IAction
     public void Awake()
     {
         handlers.Add(this);
-        Load();
         _audioSource = GetComponent<AudioSource>();
+        Load();
         SaveLoadControl.SaveEvent += Save;
     }
     public void StartEvent()
@@ -87,6 +86,7 @@ public class ItemHandler : MonoBehaviour,IAction
     }
     public void Save()
     {
+        if (Equals(id, "")) { return; }
         if (item != null)
         {
             itemId = item.id;

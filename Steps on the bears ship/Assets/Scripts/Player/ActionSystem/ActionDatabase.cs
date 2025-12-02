@@ -1,7 +1,6 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 namespace ActionDatabase
 {
@@ -12,6 +11,13 @@ namespace ActionDatabase
     public interface IQuest
     {
         public void StartQuest();
+
+    }
+    [Serializable]
+    public enum ExecuteType
+    {
+        all = 0,
+        anything = 1,
 
     }
     [Serializable]
@@ -51,6 +57,10 @@ namespace ActionDatabase
             }
             return Resources.Load<AudioClip>("Audio/MisingAudio");
         }
+        public bool IsEmpty()
+        {
+            return elements.Length == 0;
+        }
     }
     [Serializable]
     public struct SpriteDictionary
@@ -79,6 +89,14 @@ namespace ActionDatabase
         }
     }
     [Serializable]
+    public struct Save
+    {
+        public string name;
+        public string date;
+        public string fileName;
+        public string spritePath;
+    }
+    [Serializable]
     public class Pair<T, U>
     {
         public Pair()
@@ -99,6 +117,20 @@ namespace ActionDatabase
     {
         public Languages language = Languages.Eng;
         public float volume = 1f;
+        public int playerSavesCount = 0;
+        public List<Save> savesLinks;
+        public string lastSave;
+        public Save Find(string fileName)
+        {
+            foreach (Save s in savesLinks)
+            {
+                if(s.fileName == fileName)
+                {
+                    return s;
+                }
+            }
+            return new Save();
+        }
     }
     [Serializable]
     public class Vector_Clear
@@ -159,6 +191,7 @@ namespace ActionDatabase
     {
         public Vector_Clear position;
         public Vector_Clear rotation;
+        public float health;
         public string itemId;
     }
     [Serializable]
@@ -176,12 +209,14 @@ namespace ActionDatabase
         {
             isPickUp = item.isPickUp;
             canPickUp = item.canPickUp;
+            handlerId = item.handlerId;
             position = item.position;
             rotation = item.rotation;
             id = item.id;
         }
         public bool isPickUp;
         public bool canPickUp;
+        public string handlerId;
         public Vector_Clear position;
         public Vector_Clear rotation;
     }
@@ -222,9 +257,58 @@ namespace ActionDatabase
         {
             blockByQuest = animationActivator.blockByQuest;
             status = animationActivator.status;
+            currentState = animationActivator.currentState;
             id = animationActivator.id;
         }
         public bool blockByQuest;
-        public bool status = false;
+        public bool status;
+        public int currentState;
+    }
+    [Serializable]
+    public class Trigger : DataObject
+    {
+        public Trigger()
+        {
+        }
+        public Trigger(bool state, string id)
+        {
+            triggered = state;
+            this.id = id; 
+        }
+        public bool triggered = false;
+    }
+    [Serializable]
+    public class ValveData : DataObject
+    {
+        public ValveData()
+        {
+        }
+        public ValveData(Valve valve)
+        {
+            this.rotation = valve.rotation;
+            this.complited = valve.complited;
+            this.angle = valve.angle;
+            id = valve.id;
+        }
+        public bool complited;
+        public float angle;
+        public Vector_Clear rotation;
+    }
+    [Serializable]
+    public class QuestData : DataObject
+    {
+        public QuestData()
+        {
+        }
+        public QuestData(QuestControl questControl)
+        {
+            actionCanExecute = questControl.actionCanExecute;
+            complited = questControl.complited;
+            questCount = questControl.questCount;
+            id = questControl.id;
+        }
+        public int questCount;
+        public bool actionCanExecute;
+        public bool complited = false;
     }
 }

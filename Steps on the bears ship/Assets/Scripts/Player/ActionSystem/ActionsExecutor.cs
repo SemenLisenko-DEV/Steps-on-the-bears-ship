@@ -81,14 +81,21 @@ public class ActionsExecutor : MonoBehaviour
             }
             hitPoint = Instantiate(Resources.Load<GameObject>("Prefabs/ActionHelper/Sphere"), hit.point, Quaternion.identity, hit.collider.transform);
         }
-        while (Input.GetButton("MouseLeft") && Physics.Raycast(ray, _maxRange, actionMask))
+        else
         {
-            CameraControl.Instance.block = true;
-            CameraControl.Instance.LookAt(hitPoint.transform.position);
-            ray = _camera.ScreenPointToRay(Input.mousePosition);
-            actionExecuting = true;
-            SetAim(3, _spriteDictionary.Find("bearHand_Close"));
-            yield return new WaitForEndOfFrame();
+            StartCoroutine(RayExecute());
+            yield break ;
+        }
+        CameraControl.Instance.block = true;
+        actionExecuting = true;
+        if (hit.transform.tag != "DoNotPull")
+        {
+            while (Input.GetButton("MouseLeft") && Vector3.Distance(hitPoint.transform.position,_camera.transform.position) < _maxRange + 2)
+            {
+                CameraControl.Instance.LookAt(hitPoint.transform.position);
+                SetAim(3, _spriteDictionary.Find("bearHand_Close"));
+                yield return new WaitForEndOfFrame();
+            }
         }
         if(hitPoint != null) { Destroy(hitPoint); }
         CameraControl.Instance.block = false;

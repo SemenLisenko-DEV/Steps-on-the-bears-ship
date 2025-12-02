@@ -13,10 +13,13 @@ public class UICanvasController : MonoBehaviour
         public string keyName;
         public string canvasName;
     }
+    
     [SerializeField] public bool needPause = false;
     [SerializeField] public ButtonBind[] buttonBinds;
     [SerializeField] public GameObject[] Canvases;
     [SerializeField] public int curActiveCanvas = -1;
+
+    [HideInInspector] public bool blockChange = false;
     
     private List<IEnumerator> binds = new List<IEnumerator>();
     public void Start()
@@ -34,7 +37,7 @@ public class UICanvasController : MonoBehaviour
     }
     public IEnumerator bindChecker(ButtonBind buttonBind)
     {
-        yield return new WaitUntil(() => Input.GetButtonDown(buttonBind.keyName));
+        yield return new WaitUntil(() => Input.GetButtonDown(buttonBind.keyName) && !blockChange);
         AudioSource buttonSound;
         if (TryGetComponent(out buttonSound) && FindActiveCanvas(buttonBind.canvasName) != curActiveCanvas)
         {
@@ -50,7 +53,7 @@ public class UICanvasController : MonoBehaviour
     }
     public void SetActiveCanvas(int ID)
     {
-        if(curActiveCanvas == ID)
+        if(curActiveCanvas == ID || blockChange)
         {
             return;
         }
@@ -67,7 +70,7 @@ public class UICanvasController : MonoBehaviour
     }
     public void SetActiveCanvas(string name)
     {
-        if (curActiveCanvas == FindActiveCanvas(name))
+        if (curActiveCanvas == FindActiveCanvas(name) || blockChange)
         {
             return;
         }
@@ -99,8 +102,9 @@ public class UICanvasController : MonoBehaviour
         }
         return id;
     }
-    public void DisableCanvases()
+    public void DisableCanvases() 
     {
+        if (blockChange) { return; }
         for (int i = 0; i < Canvases.Length; i++)
         {
             Canvases[i].SetActive(false);

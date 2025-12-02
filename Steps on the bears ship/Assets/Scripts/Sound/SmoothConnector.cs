@@ -10,6 +10,17 @@ public class SmoothConnector : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
     }
+    private void Update()
+    {
+        if(Time.timeScale == 0)
+        {
+            _audioSource.Pause();
+        }
+        else
+        {
+            _audioSource.UnPause();
+        }
+    }
     private IEnumerator AudioFadeIn(AudioClip clip, float speed = 1f)
     {
         _audioSource.clip = clip;

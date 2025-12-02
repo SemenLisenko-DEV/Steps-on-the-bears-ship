@@ -1,8 +1,7 @@
 using ActionDatabase;
-using Newtonsoft.Json;
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 public class AnimationActivator : MonoBehaviour, IAction,IQuest
 {
@@ -11,22 +10,23 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     //сохранить:
     public bool blockByQuest;// отключает возможность активировать нажатием анимацию до выполения задачи
     [HideInInspector] public bool status = false;
+    [HideInInspector] public int currentState;
     //дальше не сохранять
 
-    [SerializeField, JsonIgnore] public static List<AnimationActivator> animationActivators = new List<AnimationActivator>();
+    [SerializeField] public static List<AnimationActivator> animationActivators = new List<AnimationActivator>();
 
-    [JsonIgnore] private bool _wait = false;
-    [JsonIgnore] public Animator _animator;
-    [SerializeField, JsonIgnore] private float _waitTime;
-    [SerializeField, JsonIgnore] private string boolName = "";
-    [SerializeField, JsonIgnore] private AudioDictionary _audioDictionary;
-    [SerializeField, JsonIgnore] private bool _disabledByQuest;// полностью отключает возможность активировать нажатием анимацию
-    [JsonIgnore] private AudioSource _audioSource;
+    private bool _wait = false;
+    public Animator _animator;
+    [SerializeField] private float _waitTime;
+    [SerializeField] private string boolName = "";
+    [SerializeField] private AudioDictionary _audioDictionary;
+    [SerializeField] private bool _disabledByQuest;// полностью отключает возможность активировать нажатием анимацию
+    private AudioSource _audioSource;
     public void Awake()
     {
         animationActivators.Add(this);
-        Load();
         _audioSource = GetComponent<AudioSource>();
+        Load();
         SaveLoadControl.SaveEvent += Save;
     }
     public void Update()
@@ -42,9 +42,26 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         }
         if(_disabledByQuest)
         {
-            _audioSource.clip = _audioDictionary.Find("True");
-            _audioSource.Play();
-            _animator.SetBool(boolName, true);
+            if(!status)
+            {
+                if (!_audioDictionary.IsEmpty())
+                {
+                    _audioSource.clip = _audioDictionary.Find("True");
+                    _audioSource.Play();
+                }
+                _animator.SetBool(boolName, true);
+                status = true;
+            }
+            else
+            {
+                if (!_audioDictionary.IsEmpty())
+                {
+                    _audioSource.clip = _audioDictionary.Find("False");
+                    _audioSource.Play();
+                }
+                _animator.SetBool(boolName, false);
+                status = false;
+            }
         }
     }
     public void StartEvent()
@@ -52,15 +69,21 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         if(_wait || blockByQuest || _disabledByQuest) { return; }
         if (!status)
         {
-            _audioSource.clip = _audioDictionary.Find("True");
-            _audioSource.Play();
+            if (!_audioDictionary.IsEmpty())
+            {
+                _audioSource.clip = _audioDictionary.Find("True");
+                _audioSource.Play();
+            }
             _animator.SetBool(boolName, true);
             status = true;
         }
         else
         {
-            _audioSource.clip = _audioDictionary.Find("False");
-            _audioSource.Play();
+            if (!_audioDictionary.IsEmpty())
+            {
+                _audioSource.clip = _audioDictionary.Find("False");
+                _audioSource.Play();
+            }
             _animator.SetBool(boolName, false);
             status = false;
         }
@@ -96,6 +119,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     public void Save()
     {
         if(Equals(id,"")) { return; }
+        currentState = _animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
         SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.animationActivators, id);
         SaveLoadControl.gameData.animationActivators.Add(new AnimationActivatorData(this));
     }
@@ -105,6 +129,8 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         if (animationActivator == null) { return; }
         blockByQuest = animationActivator.blockByQuest;
         status = animationActivator.status;
+        currentState = animationActivator.currentState;
         _animator.SetBool(boolName, status);
+        _animator.Play(currentState);
     }
 }

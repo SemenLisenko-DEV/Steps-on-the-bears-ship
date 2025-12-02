@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 284377039137991415}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7067443, z: -0, w: 0.7074691}
-  m_LocalPosition: {x: -0.0000032782555, y: 1.082, z: 0.5}
+  m_LocalPosition: {x: -0.0000032782555, y: 1.082, z: 0.75}
   m_LocalScale: {x: 0.5, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -178,7 +178,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 6356676439277827926}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.75
+  m_Radius: 0.45
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -203,10 +203,10 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
+  m_Pitch: 0.5
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -215,7 +215,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 14.5
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -223,23 +223,23 @@ AudioSource:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
+      time: 0.06896552
       value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      value: 0.4068451
+      inSlope: -1.074074
+      outSlope: -1.074074
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -248,7 +248,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -300,9 +300,9 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1
+  m_Pitch: 0.5
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -322,44 +322,17 @@ AudioSource:
     - serializedVersion: 3
       time: 0.06896552
       value: 1
-      inSlope: -14.505798
-      outSlope: -14.505798
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.13793103
-      value: 0.5
-      inSlope: -3.6264496
-      outSlope: -3.6264496
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.27586207
-      value: 0.18379211
-      inSlope: -0.9066124
-      outSlope: -0.9066124
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.52413625
-      value: 0.068984985
-      inSlope: -0.2266531
-      outSlope: -0.2266531
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 0.01803168
-      inSlope: -0.06899312
-      outSlope: -0.06899312
+      value: 0.2913208
+      inSlope: -1.074074
+      outSlope: -1.074074
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -372,7 +345,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -424,22 +397,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b830490c9134fb49b7580dfe9ad6675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _canSee: 0
+  _canHear: 1
+  _flairDistance: 8
+  _hearDistance: 30
   _stepsSource: {fileID: 3773170982398366783}
   _anotherSounds: {fileID: 3577049399656998058}
-  _angleOfView: 120
-  _speedSeek: 3.5
-  _speedChase: 7
+  _angleOfView: 150
+  _speedSeek: 2
+  _speedChase: 8
   _obstacleMask:
     serializedVersion: 2
     m_Bits: 8
   _audioDictionary:
     elements:
     - key: Distract
-      value: {fileID: 0}
+      value: {fileID: 8300000, guid: aece782ac1fa4d8418ec7539bdb0656e, type: 3}
     - key: Chase
       value: {fileID: 8300000, guid: 153d36933f90bfd4796f87c675d2c6df, type: 3}
     - key: Seek
       value: {fileID: 8300000, guid: 4aecdb2fbc2e63d44958d39f02110451, type: 3}
+    - key: Walk
+      value: {fileID: 8300000, guid: 15e933db13f73e64789eb88946d73b94, type: 3}
   _path:
   - priority: 0
     point: {fileID: 0}
@@ -516,7 +495,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: a326621dbf2b569499add7130ae0490c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -13,6 +13,7 @@ public class Item : MonoBehaviour, IAction
     //сохранить:
     [HideInInspector] public bool isPickUp = false;
     public bool canPickUp = true;
+    [HideInInspector] public string handlerId;
     [HideInInspector] public Vector_Clear position;
     [HideInInspector] public Vector_Clear rotation;
     //дальше не сохранять
@@ -33,7 +34,9 @@ public class Item : MonoBehaviour, IAction
         audioSource = GetComponent<AudioSource>();
         _followPlayerCoroutine = FollowPlayer();
         rigidBody = GetComponent<Rigidbody>();
+        Load();
         SaveLoadControl.SaveEvent += Save;
+
     }
     public void StartEvent()
     {
@@ -64,8 +67,9 @@ public class Item : MonoBehaviour, IAction
     {
         while (true)
         {
-            float dist = Vector3.Distance(transform.position, ItemPosition._transform.position) + 50f;
-            rigidBody.linearVelocity = -(transform.position - ItemPosition._transform.position) * dist * dist * Time.deltaTime;
+            float speed = Vector3.Distance(transform.position, ItemPosition._transform.position) + 50f;
+            speed = speed > 250? 250 : speed;
+            rigidBody.linearVelocity = -(transform.position - ItemPosition._transform.position) * speed ;
             rigidBody.angularVelocity = new Vector3(transform.rotation.x, transform.rotation.y, transform.rotation.z) * 10;
             yield return new WaitForEndOfFrame();
         }
@@ -112,6 +116,11 @@ public class Item : MonoBehaviour, IAction
         }
         return null;
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(isPickUp || handler != null) { return; }
+        Noise.MakeNoise(transform.position, 20f, _audioClips.Find("Hit"));
+    }
     private void OnDestroy()
     {
         if(isPickUp)
@@ -124,6 +133,8 @@ public class Item : MonoBehaviour, IAction
     }
     public void Save()
     {
+        if (Equals(id, "")) { return; }
+        handlerId = handler?.id;
         position = new Vector_Clear(transform.position);
         rotation = new Vector_Clear(transform.rotation);
         SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.items,id);
@@ -135,7 +146,10 @@ public class Item : MonoBehaviour, IAction
         if(item == null) { return; }
         isPickUp = item.isPickUp;
         canPickUp = item.canPickUp;
+        handlerId = item.handlerId;
         transform.position = item.position.ToVector3();
         transform.rotation = item.rotation.ToQuaternion();
+        if (handlerId != "") { handler = ItemHandler.GetItemHandler(handlerId); }
+        if (!canPickUp && handler != null) { StartCoroutine(moveToLock(handler.transform)); }
     }
 }

@@ -1,4 +1,20 @@
 {
   "language": 0,
-  "volume": 1.0
+  "volume": 1.0,
+  "playerSavesCount": 1,
+  "savesLinks": [
+    {
+      "name": "{AutoSaveName}",
+      "date": "02.12.2025 0:16:53",
+      "fileName": "autoSave.json",
+      "spritePath": "autoSaveScreen.png"
+    },
+    {
+      "name": "sadas",
+      "date": "02.12.2025 18:21:11",
+      "fileName": "playerSave0.json",
+      "spritePath": "playerSave0Screen.png"
+    }
+  ],
+  "lastSave": "playerSave0.json"
 }

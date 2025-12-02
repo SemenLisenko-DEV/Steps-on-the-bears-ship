@@ -28,9 +28,31 @@ public class LanguageControl: MonoBehaviour
         SaveSettings();
     }
     
-    public static string GetTranslate(string key)
+    public static string GetTranslate(string key,int r = 0)
     {
-        return translate.GetTranslate(key);
+        return translate.GetTranslate(key,r);
     }
-    
+    public static string GetTranslate(string key, Pair<string, string> placeholder, int r = 0)
+    {
+        string s = GetTranslate(key, r);
+        if (placeholder.Second.Contains("{") && placeholder.Second.Contains("}"))
+        {
+            placeholder.Second = GetTranslate(placeholder.Second.Substring(1, placeholder.Second.Length - 2));
+        }
+        s = s.Replace(placeholder.First, placeholder.Second);
+        return s;
+    }
+    public static string GetTranslate(string key, Pair<string,string>[] placeholder, int r = 0)
+    {
+        string s = GetTranslate(key,r);
+        for (int i = 0; i < placeholder.Length; i++)
+        {
+            if (placeholder[i].Second.Contains("{") && placeholder[i].Second.Contains("}"))
+            {
+                placeholder[i].Second = GetTranslate(placeholder[i].Second.Substring(1, placeholder[i].Second.Length - 2));
+            }
+            s = s.Replace(placeholder[i].First, placeholder[i].Second);
+        }
+        return s;
+    }
 }
