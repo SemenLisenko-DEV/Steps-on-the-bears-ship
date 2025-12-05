@@ -22,6 +22,7 @@ public class SeekerAI : MonoBehaviour,IQuest
 
     [SerializeField] private bool _canSee = true;
     [SerializeField] private bool _canHear = true;
+    [SerializeField] private bool _alwaysChase = true;
     [SerializeField] private float _flairDistance = 4;
     [SerializeField] private float _hearDistance = 30;
     [SerializeField] private AudioSource _stepsSource;
@@ -57,9 +58,16 @@ public class SeekerAI : MonoBehaviour,IQuest
         else
         {
             _active = false;
+            SaveLoadControl.blockSaving = false;
             StopAllCoroutines();
             _smoothConnector.Stop();
+            Destroy(_smoothConnector.gameObject);
+            Destroy(gameObject);
         }
+    }
+    public void DisableQuest()
+    {
+
     }
     private Vector3 GetRandomPoint(int minPriority = 0,int maxPriority = int.MaxValue)
     {
@@ -76,7 +84,7 @@ public class SeekerAI : MonoBehaviour,IQuest
     private bool TargetInFieldOfView(Vector3 target)
     {
         Vector3 directionToTarget = (target - transform.position).normalized;
-        if (!Physics.Linecast(transform.position, target,_obstacleMask) && Vector3.Angle(transform.forward, directionToTarget) < _angleOfView / 2)
+        if (!Physics.Linecast(transform.position + transform.up * 2f, target,_obstacleMask) && Vector3.Angle(transform.forward, directionToTarget) < _angleOfView / 2)
         {
             return _canSee;
         }
@@ -84,7 +92,7 @@ public class SeekerAI : MonoBehaviour,IQuest
     }
     private bool TargetNear(Vector3 target)
     {
-        if (!Physics.Linecast(transform.position, target, _obstacleMask) && Vector3.Distance(target, transform.position) < _flairDistance)
+        if (!Physics.Linecast(transform.position + transform.up * 2f, target, _obstacleMask) && Vector3.Distance(target, transform.position) < _flairDistance)
         {
             return true;
         }
@@ -92,10 +100,11 @@ public class SeekerAI : MonoBehaviour,IQuest
     }
     public void OnNoiseHear(Vector3 position)
     {
-        if(Vector3.Distance(position, transform.position) > _hearDistance) { return; }
+        if(Vector3.Distance(position, transform.position) > _hearDistance || _chasing) { return; }
         _anotherSounds.clip = _audioDictionary.Find("Distract");
         _anotherSounds.Play();
-        StopCoroutine(Seek());
+        StopCoroutine("Seek");
+        StopCoroutine("CheckPosition");
         StartCoroutine(CheckPosition(position));
     }
 
@@ -115,7 +124,7 @@ public class SeekerAI : MonoBehaviour,IQuest
     public IEnumerator CheckPosition(Vector3 position)
     {
         if (_chasing) { yield break; }
-        StopCoroutine(Seek());
+        StopCoroutine("Seek");
         _agent.isStopped = false;
         _agent.SetDestination(position);
         _agent.speed = _speedChase;
@@ -129,19 +138,19 @@ public class SeekerAI : MonoBehaviour,IQuest
     }
     private IEnumerator Chase()
     {
-        yield return new WaitUntil(() => TargetInFieldOfView(PlayerControl.Instance.transform.position)  || TargetNear(PlayerControl.Instance.transform.position));
+        yield return new WaitUntil(() => TargetInFieldOfView(PlayerControl.Instance.transform.position)  || TargetNear(PlayerControl.Instance.transform.position) || _alwaysChase);
         _smoothConnector.SetAudio(_audioDictionary.Find("Chase"), 1.5f);
-        Debug.Log("Start chase!");
-        StopCoroutine(Seek());
+        StopCoroutine("CheckPosition");
+        StopCoroutine("Seek");
         _agent.isStopped = false;
         _chasing = true;
         float timer = 5f;
         _agent.speed = _speedChase;
-        bool inView = TargetInFieldOfView(PlayerControl.Instance.transform.position) || TargetNear(PlayerControl.Instance.transform.position);
+        bool inView = TargetInFieldOfView(PlayerControl.Instance.transform.position) || TargetNear(PlayerControl.Instance.transform.position) || _alwaysChase;
         Vector3 lastPosition = PlayerControl.Instance.transform.position;
         while (timer > 0)
         {
-            inView = TargetInFieldOfView(PlayerControl.Instance.transform.position) || TargetNear(PlayerControl.Instance.transform.position);
+            inView = TargetInFieldOfView(PlayerControl.Instance.transform.position) || TargetNear(PlayerControl.Instance.transform.position) || _alwaysChase;
             if (timer > 4.5f)
             {
                 _agent.SetDestination(PlayerControl.Instance.transform.position);
@@ -167,7 +176,7 @@ public class SeekerAI : MonoBehaviour,IQuest
             SaveLoadControl.blockSaving = true;
         }
         if (Time.timeScale == 0) { _stepsSource.Pause(); } else { _stepsSource.UnPause(); }
-        if (_agent.speed == _speedChase)
+        if (_agent.speed == _speedChase && _agent.speed != _speedSeek)
         {
             _stepsSource.pitch = 1.5f;
         }

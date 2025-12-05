@@ -11,7 +11,7 @@ namespace ActionDatabase
     public interface IQuest
     {
         public void StartQuest();
-
+        public void DisableQuest();
     }
     [Serializable]
     public enum ExecuteType

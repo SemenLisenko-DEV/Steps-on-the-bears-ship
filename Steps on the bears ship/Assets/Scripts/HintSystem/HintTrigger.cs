@@ -24,7 +24,7 @@ public class HintTrigger : MonoBehaviour
     }
     public void Save()
     {
-        SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.quests, id);
+        SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.triggers, id);
         SaveLoadControl.gameData.triggers.Add(new Trigger(_triggered, id));
     }
     public void Load()

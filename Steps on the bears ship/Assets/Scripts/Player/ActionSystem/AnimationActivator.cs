@@ -64,6 +64,10 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
             }
         }
     }
+    public void DisableQuest()
+    {
+
+    }
     public void StartEvent()
     {
         if(_wait || blockByQuest || _disabledByQuest) { return; }

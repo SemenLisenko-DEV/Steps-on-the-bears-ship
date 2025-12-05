@@ -17,8 +17,6 @@ public class ItemPosition : MonoBehaviour
     }
     private void OnDestroy()
     {
-        _transform = null;
-        itemSpawn = null;
         haveItem = false;
         item = null;
     }

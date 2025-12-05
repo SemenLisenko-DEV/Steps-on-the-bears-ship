@@ -20,6 +20,10 @@ public class ZoneSound : MonoBehaviour, IQuest
             _audioSource.Play();
         }
     }
+    public void DisableQuest()
+    {
+
+    }
     public IEnumerator SoundLower() 
     {
         while (_audioSource.volume > 0)

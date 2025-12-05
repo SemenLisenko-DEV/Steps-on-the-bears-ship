@@ -115,7 +115,7 @@ public class ActionsExecutor : MonoBehaviour
         _audioSource.clip = _audioDictionary.Find("Charge");
         _audioSource.Play();
         float time = 0;
-        while (Input.GetButton("MouseRight"))
+        while (Input.GetButton("MouseRight") && ItemPosition.haveItem)
         {
             time += time < _maxChargeTime ? Time.deltaTime : 0;
             _chargeDisplay.fillAmount = time / _maxChargeTime;
@@ -123,16 +123,17 @@ public class ActionsExecutor : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         _audioSource.Stop();
+        if (ItemPosition.haveItem)
+        {
+            _audioSource.clip = _audioDictionary.Find("Throw");
+            _audioSource.Play();
 
-        _audioSource.clip = _audioDictionary.Find("Throw");
-        _audioSource.Play();
+            _chargeDisplay.fillAmount = 0f;
 
-        _chargeDisplay.fillAmount = 0f;
-
-        Item item = ItemPosition.item;
-        item.Drop();
-        item.rigidBody.AddForce(transform.forward * time * 50f);
-
+            Item item = ItemPosition.item;
+            item.Drop();
+            item.rigidBody.AddForce(transform.forward * time * 50f);
+        }
         StartCoroutine(Throw());
     }
 }

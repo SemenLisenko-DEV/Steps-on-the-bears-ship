@@ -16,14 +16,16 @@ public class ItemHandler : MonoBehaviour,IAction
 
     [SerializeField] private AudioDictionary _audioDictionary;
     [SerializeField] private bool canTakeOut = false;
+    [SerializeField] private bool _triggerOnTakeOut = false;
     [SerializeField] private Transform _itemPosition;
     public ItemType allowedType;
+    public Item item;
 
     [SerializeField,Header("Quest system")] private GameObject _questTarget;
+    [SerializeField] private GameObject _questTargetTakeOut;
     [SerializeField] private bool _triggerMultiply;
     private AudioSource _audioSource;
 
-    [HideInInspector, JsonIgnore] public Item item;
     public void Awake()
     {
         handlers.Add(this);
@@ -35,10 +37,10 @@ public class ItemHandler : MonoBehaviour,IAction
     {
         if (ItemPosition.haveItem && item == null) 
         {
-            if (ItemPosition.item.itemType == allowedType)
+            if (ItemPosition.item.itemType == allowedType && (!isTriggered || _triggerMultiply))
             {
                 item = ItemPosition.item;
-                StartCoroutine(item.moveToLock(_itemPosition));
+                StartCoroutine(item.MoveToLock(_itemPosition));
                 item.canPickUp = canTakeOut;
                 item.handler = this;
                 _audioSource.clip = _audioDictionary.Find("Lock");
@@ -65,8 +67,19 @@ public class ItemHandler : MonoBehaviour,IAction
     {
         item.handler = null;
         item = null;
+        itemId = "";
         _audioSource.clip = _audioDictionary.Find("UnLock");
         _audioSource.Play();
+        if (_questTarget != null && (!isTriggered || _triggerMultiply) && _triggerOnTakeOut)
+        {
+            isTriggered = true;
+            _questTarget.GetComponent<IQuest>().StartQuest();
+        }
+        if(_questTargetTakeOut != null && (!isTriggered || _triggerMultiply))
+        {
+            isTriggered = true;
+            _questTarget.GetComponent<IQuest>().DisableQuest();
+        }
     }
     private void OnDestroy()
     {

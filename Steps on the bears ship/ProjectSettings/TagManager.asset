@@ -14,8 +14,8 @@ TagManager:
   - UI
   - Interactive
   - Player
-  - 
-  - 
+  - Enemy
+  - DontBakeNavmesh
   - 
   - 
   - 

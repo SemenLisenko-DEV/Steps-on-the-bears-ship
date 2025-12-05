@@ -1,9 +1,7 @@
 using ActionDatabase;
-using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Item : MonoBehaviour, IAction
@@ -11,9 +9,9 @@ public class Item : MonoBehaviour, IAction
     public string id;
 
     //сохранить:
-    [HideInInspector] public bool isPickUp = false;
+    [HideInInspector]public bool isPickUp = false;
     public bool canPickUp = true;
-    [HideInInspector] public string handlerId;
+    public string handlerId;
     [HideInInspector] public Vector_Clear position;
     [HideInInspector] public Vector_Clear rotation;
     //дальше не сохранять
@@ -24,15 +22,13 @@ public class Item : MonoBehaviour, IAction
     [SerializeField] private AudioDictionary _audioClips;
     [HideInInspector] public Rigidbody rigidBody;
 
-    [HideInInspector] public ItemHandler handler = null;
+    public ItemHandler handler = null;
 
-    private IEnumerator _followPlayerCoroutine;
     [SerializeField] public AudioSource audioSource = null;
     public void Awake()
     {
         items.Add(this);
         audioSource = GetComponent<AudioSource>();
-        _followPlayerCoroutine = FollowPlayer();
         rigidBody = GetComponent<Rigidbody>();
         Load();
         SaveLoadControl.SaveEvent += Save;
@@ -52,7 +48,8 @@ public class Item : MonoBehaviour, IAction
             }
             return; 
         }
-        if (handler != null) { handler.TakeOut(); }
+        if (handler != null) {handler.item = this; handler.TakeOut(); }
+        handlerId = "";
         UnLock();
         audioSource.clip = _audioClips.Find("PickUp");
         audioSource.Play();
@@ -60,11 +57,14 @@ public class Item : MonoBehaviour, IAction
         rigidBody.useGravity = false;
         ItemPosition.item = this;
         ItemPosition.haveItem = true;
+        Debug.Log(ItemPosition.item);
+        Debug.Log(ItemPosition.haveItem);
         ItemPosition.ItemsDrops += Drop;
-        StartCoroutine(_followPlayerCoroutine);
+        StartCoroutine(FollowPlayer());
     }
     public IEnumerator FollowPlayer()
     {
+        yield return new WaitUntil(() => ItemPosition._transform != null);
         while (true)
         {
             float speed = Vector3.Distance(transform.position, ItemPosition._transform.position) + 50f;
@@ -76,21 +76,29 @@ public class Item : MonoBehaviour, IAction
     }
     public void Drop()
     {
+        Debug.Log(ItemPosition.haveItem + " " + id);
         ItemPosition.ItemsDrops -= Drop;
         StopAllCoroutines();
         rigidBody.linearVelocity = Vector3.zero;
         rigidBody.angularVelocity = Vector3.zero;
-        ItemPosition.haveItem = false;
-        ItemPosition.item = null;
+        if(ItemPosition.item == this)
+        {
+            ItemPosition.haveItem = false;
+            ItemPosition.item = null;
+        }
         isPickUp = false;
         rigidBody.useGravity = true;
     }
-    public IEnumerator moveToLock(Transform target)
+    public IEnumerator MoveToLock(Transform target)
     {
         Drop();
-        while (Vector3.Distance(transform.position, target.position) > 0.2f)
+        while (Vector3.Distance(transform.position, target.position) > 0.15f)
         {
-            rigidBody.linearVelocity = -(transform.position - target.position) * 10;
+            Vector3 velocity = -(transform.position - target.position) * 5;
+            velocity.x = Mathf.Clamp(velocity.x, -3, 3);
+            velocity.y = Mathf.Clamp(velocity.y, -3, 3);
+            velocity.z = Mathf.Clamp(velocity.z, -3, 3);
+            rigidBody.linearVelocity = velocity;
             yield return new WaitForEndOfFrame();
         }
         transform.position = target.position;
@@ -149,7 +157,7 @@ public class Item : MonoBehaviour, IAction
         handlerId = item.handlerId;
         transform.position = item.position.ToVector3();
         transform.rotation = item.rotation.ToQuaternion();
-        if (handlerId != "") { handler = ItemHandler.GetItemHandler(handlerId); }
-        if (!canPickUp && handler != null) { StartCoroutine(moveToLock(handler.transform)); }
+        handler = ItemHandler.GetItemHandler(handlerId);
+        if (handler != null) { StartCoroutine(MoveToLock(handler.transform)); }
     }
 }

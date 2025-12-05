@@ -1,20 +1,38 @@
 {
-  "language": 0,
+  "language": 1,
   "volume": 1.0,
-  "playerSavesCount": 1,
+  "playerSavesCount": 5,
   "savesLinks": [
     {
-      "name": "{AutoSaveName}",
-      "date": "02.12.2025 0:16:53",
-      "fileName": "autoSave.json",
-      "spritePath": "autoSaveScreen.png"
+      "name": "",
+      "date": "05.12.2025 14:38:36",
+      "fileName": "playerSave2.json",
+      "spritePath": "playerSave2Screen.png"
     },
     {
-      "name": "sadas",
-      "date": "02.12.2025 18:21:11",
-      "fileName": "playerSave0.json",
-      "spritePath": "playerSave0Screen.png"
+      "name": "New save",
+      "date": "05.12.2025 20:36:24",
+      "fileName": "playerSave3.json",
+      "spritePath": "playerSave3Screen.png"
+    },
+    {
+      "name": "sadasd",
+      "date": "05.12.2025 20:36:30",
+      "fileName": "playerSave4.json",
+      "spritePath": "playerSave4Screen.png"
+    },
+    {
+      "name": "sadasd",
+      "date": "05.12.2025 20:36:31",
+      "fileName": "playerSave5.json",
+      "spritePath": "playerSave5Screen.png"
+    },
+    {
+      "name": "{AutoSaveName}",
+      "date": "05.12.2025 21:10:43",
+      "fileName": "autoSave.json",
+      "spritePath": "autoSaveScreen.png"
     }
   ],
-  "lastSave": "playerSave0.json"
+  "lastSave": "autoSave.json"
 }

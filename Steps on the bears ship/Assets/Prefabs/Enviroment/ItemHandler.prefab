@@ -56,13 +56,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9194377073628274982}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.48739704, y: -0.51229304, z: -0.51229316, w: 0.48739696}
-  m_LocalPosition: {x: 0.0006639436, y: 0.029478475, z: 0.008153338}
-  m_LocalScale: {x: 0.1, y: 0.4, z: 0.29999998}
+  m_LocalRotation: {x: 0.5, y: -0.5, z: -0.5, w: 0.5}
+  m_LocalPosition: {x: 0.002, y: 0.13, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4843219343377329292}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: -90}
 --- !u!1001 &2434194409587056461
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -812,7 +812,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 5
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -845,7 +845,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -897,6 +897,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2f849d0f9c5a9b469118a7e536e53a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 
+  isTriggered: 0
+  itemId: 
   _audioDictionary:
     elements:
     - key: Lock
@@ -906,11 +909,13 @@ MonoBehaviour:
     - key: UnLock
       value: {fileID: 8300000, guid: b5dca8e48fb90604da451a4c377f9361, type: 3}
   canTakeOut: 0
+  _triggerOnTakeOut: 0
   _itemPosition: {fileID: 1480898322124829864}
   allowedType: 2
-  _questTarget: {fileID: 0}
-  _triggerMultiply: 0
   item: {fileID: 0}
+  _questTarget: {fileID: 0}
+  _questTargetTakeOut: {fileID: 0}
+  _triggerMultiply: 0
 --- !u!1 &6418066446999019357 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -516098083770646512, guid: 396b860a073f7ae4e89674c986f22f71, type: 3}

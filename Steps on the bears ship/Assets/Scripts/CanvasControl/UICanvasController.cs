@@ -18,6 +18,7 @@ public class UICanvasController : MonoBehaviour
     [SerializeField] public ButtonBind[] buttonBinds;
     [SerializeField] public GameObject[] Canvases;
     [SerializeField] public int curActiveCanvas = -1;
+    [SerializeField] private string _defaultCanvas = "";
 
     [HideInInspector] public bool blockChange = false;
     
@@ -46,7 +47,7 @@ public class UICanvasController : MonoBehaviour
         }
         else
         {
-            DisableCanvases();
+            SetDefaultCanvas();
         }
         yield return new WaitUntil(() => Input.GetButtonUp(buttonBind.keyName));
         StartCoroutine(bindChecker(buttonBind));
@@ -114,5 +115,16 @@ public class UICanvasController : MonoBehaviour
         isPause = false;
         curActiveCanvas = -1;
         Time.timeScale = 1f;
+    }
+    public void SetDefaultCanvas()
+    {
+        if (_defaultCanvas != "")
+        {
+            SetActiveCanvas(_defaultCanvas);
+        }
+        else
+        {
+            DisableCanvases();
+        }
     }
 }

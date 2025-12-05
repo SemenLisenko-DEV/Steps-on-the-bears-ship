@@ -72,8 +72,7 @@ public class SaveLoadControl : MonoBehaviour
     public static string fileName = "";
     public static bool blockSaving = false;
     public static Action SaveEvent;
-    [SerializeField,Header("Нужные объекты в меню")] private GameObject _allertMenu;
-    [SerializeField] private GameObject _continueButton;
+    [SerializeField,Header("Нужные объекты в меню")] private GameObject _continueButton;
     [SerializeField] private TMP_Text _continueButtonText;
     [SerializeField] private TMP_InputField _nameField;
     [SerializeField, Header("Нужные объекты в игре")] private GameObject _saveUI;
@@ -117,6 +116,7 @@ public class SaveLoadControl : MonoBehaviour
     public static void SaveData()
     {
         if(blockSaving) { return; }
+        SaveSettings();
         try
         {
             string path = Application.streamingAssetsPath + folder + "/" + fileName;
@@ -131,6 +131,7 @@ public class SaveLoadControl : MonoBehaviour
     public static void LoadData()
     {
         blockSaving = false;
+        LoadSettings();
         Time.timeScale = 1.0f;
         try
         {
@@ -147,7 +148,7 @@ public class SaveLoadControl : MonoBehaviour
     {
         if (File.Exists(Application.streamingAssetsPath + folder + "/autoSave.json"))
         {
-            _allertMenu.SetActive(true);
+            UICanvasController.instance.SetActiveCanvas("AllertMenu");
         }
         else
         {
@@ -163,7 +164,7 @@ public class SaveLoadControl : MonoBehaviour
     }
     public void DontStartNewGame()
     {
-        _allertMenu.SetActive(false);
+        UICanvasController.instance.SetDefaultCanvas();
     }
     public void ContinueGame()
     {

@@ -81,6 +81,11 @@ public class QuestControl : MonoBehaviour,IAction,IQuest
                 break;
         }
     }
+    public void DisableQuest()
+    {
+        if (complited) { return; }
+        questCount--;
+    }
     private void OnDestroy()
     {
         questControls.Remove(this);
