@@ -23,6 +23,7 @@ public class SaveLoadControl : MonoBehaviour
         public List<Trigger> triggers;
         public List<ValveData> valves;
         public List<QuestData> quests;
+        public List<FlashLightData> flashLights;
         public T GetData<T>(ref List<T> list, string key) where T : DataObject
         {
             if (list == null) { list = new List<T>(); return null; }

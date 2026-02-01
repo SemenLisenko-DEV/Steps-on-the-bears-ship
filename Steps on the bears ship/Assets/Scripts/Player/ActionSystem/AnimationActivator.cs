@@ -40,33 +40,33 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         {
             blockByQuest = false;
         }
-        if(_disabledByQuest)
+        if(_disabledByQuest && !status)
         {
-            if(!status)
+            if (!_audioDictionary.IsEmpty())
             {
-                if (!_audioDictionary.IsEmpty())
-                {
-                    _audioSource.clip = _audioDictionary.Find("True");
-                    _audioSource.Play();
-                }
-                _animator.SetBool(boolName, true);
-                status = true;
+                _audioSource.clip = _audioDictionary.Find("True");
+                _audioSource.Play();
             }
-            else
-            {
-                if (!_audioDictionary.IsEmpty())
-                {
-                    _audioSource.clip = _audioDictionary.Find("False");
-                    _audioSource.Play();
-                }
-                _animator.SetBool(boolName, false);
-                status = false;
-            }
+            _animator.SetBool(boolName, true);
+            status = true;
         }
     }
     public void DisableQuest()
     {
-
+        if (blockByQuest)
+        {
+            blockByQuest = true;
+        }
+        if (_disabledByQuest && status)
+        {
+            if (!_audioDictionary.IsEmpty())
+            {
+                _audioSource.clip = _audioDictionary.Find("False");
+                _audioSource.Play();
+            }
+            _animator.SetBool(boolName, false);
+            status = false;
+        }
     }
     public void StartEvent()
     {

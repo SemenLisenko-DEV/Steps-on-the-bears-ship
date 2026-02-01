@@ -7,9 +7,9 @@ using UnityEngine.UI;
 public class ActionsExecutor : MonoBehaviour
 {
     public static bool actionExecuting = false;
+    public static bool stopExecuting = false;
 
     private Camera _camera;
-    public LayerMask actionMask;
 
     [SerializeField] private float _maxRange = 2f;
     [SerializeField] private SpriteDictionary _spriteDictionary;
@@ -32,7 +32,7 @@ public class ActionsExecutor : MonoBehaviour
     {
         RaycastHit hit;
         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
-        Physics.Raycast(ray, out hit,_maxRange, actionMask);
+        Physics.Raycast(ray, out hit,_maxRange);
         if (hit.collider != null)
         {
             IAction tip;
@@ -68,17 +68,15 @@ public class ActionsExecutor : MonoBehaviour
             yield break;
         }
         RaycastHit hit;
+        IAction action;
         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
-        Physics.Raycast(ray, out hit,_maxRange,actionMask);
+        Physics.Raycast(ray, out hit,_maxRange);
         GameObject hitPoint = null;
-        if(hit.collider != null)
+        if(hit.collider != null && hit.transform.TryGetComponent(out action))
         {
-            IAction action;
-            if (hit.transform.TryGetComponent(out action))
-            {
-                actionExecuting = true;
-                action.StartEvent();
-            }
+            Debug.Log(hit.transform.name);
+            actionExecuting = true;
+            action.StartEvent();
             hitPoint = Instantiate(Resources.Load<GameObject>("Prefabs/ActionHelper/Sphere"), hit.point, Quaternion.identity, hit.collider.transform);
         }
         else
@@ -88,16 +86,18 @@ public class ActionsExecutor : MonoBehaviour
         }
         CameraControl.Instance.block = true;
         actionExecuting = true;
+        stopExecuting = false;
         if (hit.transform.tag != "DoNotPull")
         {
-            while (Input.GetButton("MouseLeft") && Vector3.Distance(hitPoint.transform.position,_camera.transform.position) < _maxRange + 2)
+            while (Input.GetButton("MouseLeft") && Vector3.Distance(hitPoint.transform.position,_camera.transform.position) < _maxRange + 2 && !stopExecuting)
             {
                 CameraControl.Instance.LookAt(hitPoint.transform.position);
                 SetAim(3, _spriteDictionary.Find("bearHand_Close"));
                 yield return new WaitForEndOfFrame();
             }
         }
-        if(hitPoint != null) { Destroy(hitPoint); }
+        stopExecuting = false ;
+        if (hitPoint != null) { Destroy(hitPoint); }
         CameraControl.Instance.block = false;
         actionExecuting = false;
         StartCoroutine(RayExecute());
@@ -119,7 +119,7 @@ public class ActionsExecutor : MonoBehaviour
         {
             time += time < _maxChargeTime ? Time.deltaTime : 0;
             _chargeDisplay.fillAmount = time / _maxChargeTime;
-            _audioSource.volume = time / _maxChargeTime;
+            _audioSource.volume = Mathf.Clamp(time / _maxChargeTime,0.1f,0.65f);
             yield return new WaitForEndOfFrame();
         }
         _audioSource.Stop();

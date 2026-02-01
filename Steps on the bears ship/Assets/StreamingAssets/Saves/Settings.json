@@ -1,38 +1,44 @@
 {
   "language": 1,
   "volume": 1.0,
-  "playerSavesCount": 5,
+  "playerSavesCount": 13,
   "savesLinks": [
     {
-      "name": "",
-      "date": "05.12.2025 14:38:36",
-      "fileName": "playerSave2.json",
-      "spritePath": "playerSave2Screen.png"
-    },
-    {
-      "name": "New save",
-      "date": "05.12.2025 20:36:24",
-      "fileName": "playerSave3.json",
-      "spritePath": "playerSave3Screen.png"
-    },
-    {
-      "name": "sadasd",
-      "date": "05.12.2025 20:36:30",
-      "fileName": "playerSave4.json",
-      "spritePath": "playerSave4Screen.png"
-    },
-    {
-      "name": "sadasd",
-      "date": "05.12.2025 20:36:31",
-      "fileName": "playerSave5.json",
-      "spritePath": "playerSave5Screen.png"
+      "name": "{AutoSaveName}",
+      "date": "26.12.2025 22:51:40",
+      "fileName": "autoSave.json",
+      "spritePath": "autoSaveScreen.png"
     },
     {
       "name": "{AutoSaveName}",
-      "date": "05.12.2025 21:10:43",
+      "date": "26.12.2025 22:57:32",
+      "fileName": "autoSave.json",
+      "spritePath": "autoSaveScreen.png"
+    },
+    {
+      "name": "{AutoSaveName}",
+      "date": "27.12.2025 0:27:18",
+      "fileName": "autoSave.json",
+      "spritePath": "autoSaveScreen.png"
+    },
+    {
+      "name": "{AutoSaveName}",
+      "date": "27.12.2025 0:30:40",
+      "fileName": "autoSave.json",
+      "spritePath": "autoSaveScreen.png"
+    },
+    {
+      "name": "Тестовое сохранение",
+      "date": "31.12.2025 4:13:10",
+      "fileName": "playerSave12.json",
+      "spritePath": "playerSave12Screen.png"
+    },
+    {
+      "name": "{AutoSaveName}",
+      "date": "31.12.2025 4:26:52",
       "fileName": "autoSave.json",
       "spritePath": "autoSaveScreen.png"
     }
   ],
-  "lastSave": "autoSave.json"
+  "lastSave": "playerSave12.json"
 }

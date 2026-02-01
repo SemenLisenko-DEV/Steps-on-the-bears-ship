@@ -44,6 +44,10 @@ namespace ActionDatabase
         public AudioPair[] elements;
         public AudioClip Find(string key)
         {
+            if(IsEmpty())
+            {
+                return Resources.Load<AudioClip>("Audio/MisingAudio");
+            }
             for (int i = 0; i < elements.Length; i++)
             {
                 if (elements[i].key == key)
@@ -193,6 +197,7 @@ namespace ActionDatabase
         public Vector_Clear rotation;
         public float health;
         public string itemId;
+        public string flashlightId;
     }
     [Serializable]
     public class DataObject
@@ -208,12 +213,14 @@ namespace ActionDatabase
         public ItemData(Item item)
         {
             isPickUp = item.isPickUp;
+            isFlying = item.isFlying;
             canPickUp = item.canPickUp;
             handlerId = item.handlerId;
             position = item.position;
             rotation = item.rotation;
             id = item.id;
         }
+        public bool isFlying;
         public bool isPickUp;
         public bool canPickUp;
         public string handlerId;
@@ -229,6 +236,7 @@ namespace ActionDatabase
         public ItemHandlerData(ItemHandler handler)
         {
             isTriggered = handler.isTriggered;
+            itemId = handler.itemId;
             id = handler.id;
         }
         public bool isTriggered = false;
@@ -310,5 +318,20 @@ namespace ActionDatabase
         public int questCount;
         public bool actionCanExecute;
         public bool complited = false;
+    }
+    public class FlashLightData : DataObject
+    {
+        public FlashLightData()
+        {
+        }
+        public FlashLightData(Flashlight flashlight)
+        {
+            isActive = flashlight.isActive;
+            position = new Vector_Clear(flashlight.transform.position);
+            rotation = new Vector_Clear(flashlight.transform.rotation);
+        }
+        public bool isActive = false;
+        public Vector_Clear position;
+        public Vector_Clear rotation;
     }
 }

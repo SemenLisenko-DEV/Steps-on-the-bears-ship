@@ -2,6 +2,7 @@ using ActionDatabase;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Valve : MonoBehaviour,IAction
 {
@@ -18,6 +19,7 @@ public class Valve : MonoBehaviour,IAction
     [SerializeField] private float _sensative = 1f;
     [SerializeField] private int _revolutCount = 1;
     [SerializeField] private GameObject _quest;
+    [SerializeField] private UnityEvent _onComplite;
     [SerializeField] private AudioDictionary _audioDictionary;
     private float _angle = 0;
     public void Awake()
@@ -49,10 +51,7 @@ public class Valve : MonoBehaviour,IAction
         if (_angle / 360 >= _revolutCount && _quest != null)
         {
             complited = true;
-            if (_quest != null)
-            {
-                _quest.GetComponent<IQuest>().StartQuest();
-            }
+            _onComplite.Invoke();
             Noise.MakeNoise(transform.position, 20f,_audioDictionary.Find("complite"));
         }
         yield break;

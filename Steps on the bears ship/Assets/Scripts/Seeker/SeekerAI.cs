@@ -4,12 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
 [RequireComponent(typeof(NavMeshAgent))]
 public class SeekerAI : MonoBehaviour,IQuest
 {
-    public static SeekerAI currentSeeker;
-    
     [Serializable]
     private struct PathPoint
     {
@@ -34,6 +31,7 @@ public class SeekerAI : MonoBehaviour,IQuest
     [SerializeField] private AudioDictionary _audioDictionary;
     [SerializeField] private PathPoint[] _path;
     [SerializeField] private SmoothConnector _smoothConnector;
+    [SerializeField] private Animator _animator;
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
@@ -41,33 +39,25 @@ public class SeekerAI : MonoBehaviour,IQuest
     }
     public void StartQuest()
     {
-        if(!_active)
+        _stepsSource.clip = _audioDictionary.Find("Walk");
+        _stepsSource.Play();
+        _smoothConnector.SetAudio(_audioDictionary.Find("Seek"),0.05f);
+        _active = true;
+        if(_canHear)
         {
-            _stepsSource.clip = _audioDictionary.Find("Walk");
-            _stepsSource.Play();
-            _smoothConnector.SetAudio(_audioDictionary.Find("Seek"),0.05f);
-            _active = true;
-            currentSeeker = this;
-            if(_canHear)
-            {
-                Noise.OnMakeNoise += OnNoiseHear;
-            }
-            StartCoroutine(Seek());
-            StartCoroutine(Chase());
+            Noise.OnMakeNoise += OnNoiseHear;
         }
-        else
-        {
-            _active = false;
-            SaveLoadControl.blockSaving = false;
-            StopAllCoroutines();
-            _smoothConnector.Stop();
-            Destroy(_smoothConnector.gameObject);
-            Destroy(gameObject);
-        }
+        StartCoroutine(Seek());
+        StartCoroutine(Chase());
     }
     public void DisableQuest()
     {
-
+        _active = false;
+        SaveLoadControl.blockSaving = false;
+        StopAllCoroutines();
+        _smoothConnector.Stop();
+        Destroy(_smoothConnector.gameObject);
+        Destroy(gameObject);
     }
     private Vector3 GetRandomPoint(int minPriority = 0,int maxPriority = int.MaxValue)
     {
@@ -179,14 +169,20 @@ public class SeekerAI : MonoBehaviour,IQuest
         if (_agent.speed == _speedChase && _agent.speed != _speedSeek)
         {
             _stepsSource.pitch = 1.5f;
+            _animator.SetBool("Walk",false);
+            _animator.SetBool("Run", true);
         }
         else if (_agent.isStopped)
         {
             _stepsSource.pitch = 0f;
+            _animator.SetBool("Walk", false);
+            _animator.SetBool("Run", false);
         }
         else
         {
-            _stepsSource.pitch = 1f;
+            _stepsSource.pitch = 0.5f;
+            _animator.SetBool("Walk", true);
+            _animator.SetBool("Run", false);
         }
     }
     private void OnTriggerStay(Collider other)

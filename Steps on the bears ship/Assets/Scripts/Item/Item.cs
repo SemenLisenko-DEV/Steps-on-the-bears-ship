@@ -11,6 +11,7 @@ public class Item : MonoBehaviour, IAction
     //сохранить:
     [HideInInspector]public bool isPickUp = false;
     public bool canPickUp = true;
+    [HideInInspector] public bool isFlying = false;
     public string handlerId;
     [HideInInspector] public Vector_Clear position;
     [HideInInspector] public Vector_Clear rotation;
@@ -40,7 +41,7 @@ public class Item : MonoBehaviour, IAction
     }
     public void PickUp()
     {
-        if (!canPickUp || ItemPosition.haveItem)
+        if (!canPickUp || ItemPosition.haveItem || isFlying)
         {
             if (handler != null)
             {
@@ -67,10 +68,10 @@ public class Item : MonoBehaviour, IAction
         yield return new WaitUntil(() => ItemPosition._transform != null);
         while (true)
         {
-            float speed = Vector3.Distance(transform.position, ItemPosition._transform.position) + 50f;
-            speed = speed > 250? 250 : speed;
+            float speed = Vector3.Distance(transform.position, ItemPosition._transform.position) + 10f;
+            speed = speed > 100? 100 : speed;
             rigidBody.linearVelocity = -(transform.position - ItemPosition._transform.position) * speed ;
-            rigidBody.angularVelocity = new Vector3(transform.rotation.x, transform.rotation.y, transform.rotation.z) * 10;
+            rigidBody.MoveRotation(Quaternion.identity);
             yield return new WaitForEndOfFrame();
         }
     }
@@ -89,20 +90,26 @@ public class Item : MonoBehaviour, IAction
         isPickUp = false;
         rigidBody.useGravity = true;
     }
-    public IEnumerator MoveToLock(Transform target)
+    public IEnumerator MoveToLock(ItemHandler target)
     {
         Drop();
-        while (Vector3.Distance(transform.position, target.position) > 0.15f)
+        target.item = this;
+        isFlying = true;
+        while (Vector3.Distance(transform.position, target._itemPosition.position) > 0.15f)
         {
-            Vector3 velocity = -(transform.position - target.position) * 5;
+            Vector3 velocity = -(transform.position - target._itemPosition.position) * 5;
             velocity.x = Mathf.Clamp(velocity.x, -3, 3);
             velocity.y = Mathf.Clamp(velocity.y, -3, 3);
             velocity.z = Mathf.Clamp(velocity.z, -3, 3);
             rigidBody.linearVelocity = velocity;
+            transform.rotation = target._itemPosition.rotation;
             yield return new WaitForEndOfFrame();
         }
-        transform.position = target.position;
-        transform.rotation = target.rotation;
+        target.audioSource.clip = target.audioDictionary.Find("Lock");
+        target.audioSource.Play();
+        isFlying = false;
+        transform.position = target._itemPosition.position;
+        transform.rotation = target._itemPosition.rotation;
         rigidBody.constraints = RigidbodyConstraints.FreezeAll;
     }
     public void Lock()
@@ -142,7 +149,6 @@ public class Item : MonoBehaviour, IAction
     public void Save()
     {
         if (Equals(id, "")) { return; }
-        handlerId = handler?.id;
         position = new Vector_Clear(transform.position);
         rotation = new Vector_Clear(transform.rotation);
         SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.items,id);
@@ -153,11 +159,16 @@ public class Item : MonoBehaviour, IAction
         ItemData item = SaveLoadControl.gameData.GetData(ref SaveLoadControl.gameData.items,id);
         if(item == null) { return; }
         isPickUp = item.isPickUp;
+        isFlying = item.isFlying;
         canPickUp = item.canPickUp;
         handlerId = item.handlerId;
         transform.position = item.position.ToVector3();
         transform.rotation = item.rotation.ToQuaternion();
+        StartCoroutine(WaitForItemLoading());
+    }
+    public IEnumerator WaitForItemLoading()
+    {
+        yield return new WaitForEndOfFrame();
         handler = ItemHandler.GetItemHandler(handlerId);
-        if (handler != null) { StartCoroutine(MoveToLock(handler.transform)); }
     }
 }

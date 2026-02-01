@@ -1,6 +1,7 @@
 using ActionDatabase;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class QuestControl : MonoBehaviour,IAction,IQuest
 {
@@ -14,8 +15,9 @@ public class QuestControl : MonoBehaviour,IAction,IQuest
 
     public ExecuteType executeType;
     public static List<QuestControl> questControls = new List<QuestControl>();
-    public GameObject[] quests;
-    [SerializeField]private int _questTargetCount = 1;
+    public UnityEvent onComplite;
+    public UnityEvent onDecomplite;
+    [SerializeField] private int _questTargetCount = 1;
     [SerializeField] private AudioDictionary _audioDictionary;
     private AudioSource _audioSource;
     public void Awake()
@@ -27,33 +29,51 @@ public class QuestControl : MonoBehaviour,IAction,IQuest
     }
     public void StartEvent()
     {
-        if (!actionCanExecute || complited) { return; }
-        questCount++;
-        
-        if(_audioSource != null)
+        if(!actionCanExecute) { return; }
+        if(!complited)
+        {
+            questCount++;
+            switch (executeType)
+            {
+                case ExecuteType.all:
+                    if (questCount >= _questTargetCount)
+                    {
+                        complited = true;
+                        onComplite.Invoke();
+                    }
+                    break;
+                case ExecuteType.anything:
+                    complited = true;
+                    onComplite.Invoke();
+                    break;
+            }
+        }
+        else
+        {
+            questCount--;
+            switch (executeType)
+            {
+                case ExecuteType.all:
+                    if (questCount >= _questTargetCount && complited)
+                    {
+                        complited = false;
+                        onDecomplite.Invoke();
+                    }
+                    break;
+                case ExecuteType.anything:
+                    if (questCount <= 0)
+                    {
+                        complited = false;
+                        onDecomplite.Invoke();
+                    }
+                    break;
+            }
+        }
+
+        if (_audioSource != null)
         {
             _audioSource.clip = _audioDictionary.Find("Activate");
             _audioSource.Play();
-        }
-        switch(executeType)
-        {
-            case ExecuteType.all:
-                if (questCount >= _questTargetCount)
-                {
-                    complited = true;
-                    foreach (var quest in quests)
-                    {
-                        quest.GetComponent<IQuest>().StartQuest();
-                    }
-                }
-                break;
-            case ExecuteType.anything:
-                complited = true;
-                foreach (var quest in quests)
-                {
-                    quest.GetComponent<IQuest>().StartQuest();
-                }
-                break;
         }
     }
     public void StartQuest()
@@ -66,25 +86,35 @@ public class QuestControl : MonoBehaviour,IAction,IQuest
                 if (questCount >= _questTargetCount)
                 {
                     complited = true;
-                    foreach (var quest in quests)
-                    {
-                        quest.GetComponent<IQuest>().StartQuest();
-                    }
+                    onComplite.Invoke();
                 }
                 break;
             case ExecuteType.anything:
                 complited = true;
-                foreach (var quest in quests)
-                {
-                    quest.GetComponent<IQuest>().StartQuest();
-                }
+                onComplite.Invoke();
                 break;
         }
     }
     public void DisableQuest()
     {
-        if (complited) { return; }
         questCount--;
+        switch (executeType)
+        {
+            case ExecuteType.all:
+                if (questCount >= _questTargetCount && complited)
+                {
+                    complited = false;
+                    onDecomplite.Invoke();
+                }
+                break;
+            case ExecuteType.anything:
+                if (questCount <= 0)
+                {
+                    complited = false;
+                    onDecomplite.Invoke();
+                }
+                break;
+        }
     }
     private void OnDestroy()
     {

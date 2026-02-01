@@ -57,7 +57,7 @@ Transform:
   m_GameObject: {fileID: 9194377073628274982}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: -0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: 0.002, y: 0.13, z: 0}
+  m_LocalPosition: {x: 0, y: 0.037, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -110,6 +110,14 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 396b860a073f7ae4e89674c986f22f71, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2093772787462966335, guid: 396b860a073f7ae4e89674c986f22f71, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.005
+      objectReference: {fileID: 0}
+    - target: {fileID: -2093772787462966335, guid: 396b860a073f7ae4e89674c986f22f71, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.078
       objectReference: {fileID: 0}
     - target: {fileID: -466329591000292508, guid: 396b860a073f7ae4e89674c986f22f71, type: 3}
       propertyPath: m_Name
@@ -900,14 +908,14 @@ MonoBehaviour:
   id: 
   isTriggered: 0
   itemId: 
-  _audioDictionary:
+  audioDictionary:
     elements:
-    - key: Lock
-      value: {fileID: 8300000, guid: 43d4098f77614fb49b3357a02c3396a5, type: 3}
     - key: Error
       value: {fileID: 8300000, guid: c76889389a1580d4a98347a9e0763484, type: 3}
     - key: UnLock
       value: {fileID: 8300000, guid: b5dca8e48fb90604da451a4c377f9361, type: 3}
+    - key: Lock
+      value: {fileID: 8300000, guid: 43d4098f77614fb49b3357a02c3396a5, type: 3}
   canTakeOut: 0
   _triggerOnTakeOut: 0
   _itemPosition: {fileID: 1480898322124829864}
@@ -916,6 +924,7 @@ MonoBehaviour:
   _questTarget: {fileID: 0}
   _questTargetTakeOut: {fileID: 0}
   _triggerMultiply: 0
+  audioSource: {fileID: 0}
 --- !u!1 &6418066446999019357 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -516098083770646512, guid: 396b860a073f7ae4e89674c986f22f71, type: 3}

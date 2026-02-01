@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[RequireComponent(typeof(Rigidbody))]
 public class Pullable : MonoBehaviour,IAction
 {
     public string id;
@@ -21,9 +21,12 @@ public class Pullable : MonoBehaviour,IAction
     [SerializeField] private Vector3 _startPositon;
     [SerializeField] private float _speedIntake = 1f;
     [SerializeField] private float _pitchMultiplier;
+
+    private Rigidbody _rb;
     public void Awake()
     {
         pullables.Add(this);
+        _rb = GetComponent<Rigidbody>();
         _audioSource = GetComponent<AudioSource>(); 
         pullables.Add(this);
         Load();
@@ -35,41 +38,27 @@ public class Pullable : MonoBehaviour,IAction
     }
     public IEnumerator Pull()
     {
-        PlayerControl.Instance.speedMultiplier = _speedIntake;
-        Vector3 previous = PlayerControl.Instance.transform.position;
-        yield return new WaitForEndOfFrame();
+        PlayerControl.OnMove += Move;
         _audioSource.clip = _audioDictionary.Find("Pull");
-        _audioSource.Play();
         _audioSource.loop = true;
+        _audioSource.Play();
         while (ActionsExecutor.actionExecuting)
         {
-            Vector3 direction = Vector3.zero;
-            direction.x = _allowedDirection.x * (previous.x - PlayerControl.Instance.transform.position.x);
-            direction.y = _allowedDirection.y * (previous.y - PlayerControl.Instance.transform.position.y);
-            direction.z = _allowedDirection.z * (previous.z - PlayerControl.Instance.transform.position.z);
-            if ((_startPositon.x + _pullableZone.x < transform.position.x && direction.x < 0) || (_startPositon.x - _pullableZone.x > transform.position.x && direction.x > 0))
-            {
-                direction.x *= 0;
-            }
-            if ((_startPositon.y + _pullableZone.y < transform.position.y && direction.y < 0) || (_startPositon.y - _pullableZone.y > transform.position.y && direction.y > 0))
-            {
-                direction.y *= 0;
-            }
-            if ((_startPositon.z + _pullableZone.z < transform.position.z && direction.z < 0) || (_startPositon.z - _pullableZone.z > transform.position.z && direction.z > 0))
-            {
-                direction.z *= 0;
-            }
-            transform.position -= direction;
-            float pitch = Vector3.Distance(previous, PlayerControl.Instance.transform.position);
-            _audioSource.pitch = pitch < 0.5f? 0 : 1f;
-            previous = PlayerControl.Instance.transform.position;
-            yield return new WaitForEndOfFrame();
+            PlayerControl.Instance.speedMultiplier = _speedIntake;
+            yield return new WaitForFixedUpdate();
         }
+        PlayerControl.OnMove -= Move;
+        _rb.linearVelocity = Vector3.zero;
         _audioSource.loop = false;
         _audioSource.pitch = 1f;
         _audioSource.Stop();
+        ActionsExecutor.stopExecuting = true;
         PlayerControl.Instance.speedMultiplier = 1f;
         yield break;
+    }
+    public void Move(Vector3 direction)
+    {
+        _rb.position += direction;
     }
     private void OnDestroy()
     {
