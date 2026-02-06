@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.GraphicsBuffer;
 
 public class ItemHandler : MonoBehaviour,IAction
 {
@@ -42,18 +43,23 @@ public class ItemHandler : MonoBehaviour,IAction
             {
                 item = ItemPosition.item;
                 StartCoroutine(item.MoveToLock(this));
-                item.canPickUp = canTakeOut;
-                item.handler = this;
-                if(_questTakeIn != null && (!isTriggered || _triggerMultiply))
-                {
-                    isTriggered = true;
-                    _questTakeIn.Invoke();
-                }
             }
             else
             {
                 ErrorSound();
             }
+        }
+    }
+    public void Sucseed()
+    {
+        item.canPickUp = canTakeOut;
+        item.handler = this;
+        audioSource.clip = audioDictionary.Find("Lock");
+        audioSource.Play();
+        if (_questTakeIn != null && (!isTriggered || _triggerMultiply))
+        {
+            isTriggered = true;
+            _questTakeIn.Invoke();
         }
     }
     public void ErrorSound()

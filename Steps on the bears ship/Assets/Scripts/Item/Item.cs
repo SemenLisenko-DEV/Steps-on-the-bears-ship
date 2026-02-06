@@ -105,6 +105,7 @@ public class Item : MonoBehaviour, IAction
             transform.rotation = target._itemPosition.rotation;
             yield return new WaitForEndOfFrame();
         }
+        target.Sucseed();
         target.audioSource.clip = target.audioDictionary.Find("Lock");
         target.audioSource.Play();
         isFlying = false;
