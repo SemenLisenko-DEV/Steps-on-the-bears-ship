@@ -50,7 +50,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4843219343377329292
 Transform:
@@ -236,7 +236,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1480898322124829864
 Transform:
@@ -304,7 +304,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 356e4d0854626d44fb8e7dec43da654f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c42ac5be9ce1bf429ebab4d5175cff0, type: 2}
+      objectReference: {fileID: 2100000, guid: 19c53fa5c7697524f8fb6033e412bd52, type: 2}
     - target: {fileID: -7511558181221131132, guid: 356e4d0854626d44fb8e7dec43da654f, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
@@ -312,6 +312,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 356e4d0854626d44fb8e7dec43da654f, type: 3}
       propertyPath: m_Name
       value: BeePowerShell
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 356e4d0854626d44fb8e7dec43da654f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

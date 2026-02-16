@@ -4,6 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class SmoothConnector : MonoBehaviour
 {
+    public AudioDictionary audioDictionary;
     private AudioSource _audioSource;
     private bool _isPlaying;
     private void Start()
@@ -57,6 +58,19 @@ public class SmoothConnector : MonoBehaviour
         else
         {
             StartCoroutine(AudioFadeIn(clip, speed));
+            _isPlaying = true;
+        }
+    }
+    public void SetAudio(string clip, float speed = 1f)
+    {
+        StopAllCoroutines();
+        if (_isPlaying)
+        {
+            StartCoroutine(AudioFadeOut(audioDictionary.Find(clip), speed));
+        }
+        else
+        {
+            StartCoroutine(AudioFadeIn(audioDictionary.Find(clip), speed));
             _isPlaying = true;
         }
     }
