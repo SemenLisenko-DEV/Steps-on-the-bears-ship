@@ -14,6 +14,12 @@ public class Substrate : MonoBehaviour
     public Sprite _screenShot;
     public void Start()
     {
+        Refresh();
+        LanguageControl.onLanguageChange += SetDescription;
+        SavesList.OnChange += Refresh;
+    }
+    public void Refresh()
+    {
         SetDescription();
         try
         {
@@ -26,7 +32,6 @@ public class Substrate : MonoBehaviour
         {
             saveScreenshot.sprite = Resources.Load<Sprite>("Sprite/DefaultScreen");
         }
-        LanguageControl.onLanguageChange += SetDescription;
     }
     public void SetDescription()
     {
@@ -34,6 +39,7 @@ public class Substrate : MonoBehaviour
         pair.Add(new Pair<string, string>("{name}", data.name));
         pair.Add(new Pair<string, string>("{time}", data.date));
         description.text = LanguageControl.GetTranslate(key, pair.ToArray());
+        Debug.Log("Substrate " + data.name + " was reset description: " + LanguageControl.GetTranslate(key, pair.ToArray()));
     }
     public void SetCurrentSave()
     {
@@ -47,5 +53,6 @@ public class Substrate : MonoBehaviour
     private void OnDestroy()
     {
         LanguageControl.onLanguageChange -= SetDescription;
+        SavesList.OnChange -= Refresh;
     }
 }

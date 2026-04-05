@@ -10,6 +10,7 @@ using UnityEngine;
 public class SavesList : MonoBehaviour
 {
     public static Action OnSubstrateDelete;
+    public static Action OnChange;
     public static SavesList Instance;
     public static string folder = "/Saves";
     public static Transform substrateParent;
@@ -22,7 +23,7 @@ public class SavesList : MonoBehaviour
         Instance = this;
         substrateParent = _substrateParentLink;
         substrateList = new List<Substrate>();
-        Refresh();
+        Refresh(); 
     }
     public static Substrate CreateSaveSubstrate(Save save)
     {
@@ -34,6 +35,7 @@ public class SavesList : MonoBehaviour
     public static void Refresh()
     {
         if (SaveLoadControl.settings.savesLinks == null) { return; }
+        OnChange?.Invoke();
         foreach (Save i in SaveLoadControl.settings.savesLinks)
         {
             if (!Contains(i))

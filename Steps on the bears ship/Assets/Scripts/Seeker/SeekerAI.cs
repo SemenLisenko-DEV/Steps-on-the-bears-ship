@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 [RequireComponent(typeof(NavMeshAgent))]
 public class SeekerAI : MonoBehaviour,IQuest
 {
@@ -22,6 +23,7 @@ public class SeekerAI : MonoBehaviour,IQuest
     [SerializeField] private bool _alwaysChase = true;
     [SerializeField] private float _flairDistance = 4;
     [SerializeField] private float _hearDistance = 30;
+    [SerializeField] private float _timeToChase = 5f;
     [SerializeField] private AudioSource _stepsSource;
     [SerializeField] private AudioSource _anotherSounds;
     [SerializeField] private float _angleOfView = 90f;
@@ -32,13 +34,16 @@ public class SeekerAI : MonoBehaviour,IQuest
     [SerializeField] private PathPoint[] _path;
     [SerializeField] private SmoothConnector _smoothConnector;
     [SerializeField] private Animator _animator;
-    private void Start()
+    [SerializeField] private Transform _walkOutPosition;
+    private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = _speedSeek;
     }
     public void StartQuest()
     {
+        _agent = GetComponent<NavMeshAgent>();
+        _agent.speed = _speedSeek;
         _stepsSource.clip = _audioDictionary.Find("Walk");
         _stepsSource.Play();
         _smoothConnector.SetAudio(_audioDictionary.Find("Seek"),0.05f);
@@ -56,7 +61,6 @@ public class SeekerAI : MonoBehaviour,IQuest
         SaveLoadControl.blockSaving = false;
         StopAllCoroutines();
         _smoothConnector.Stop();
-        Destroy(_smoothConnector.gameObject);
         Destroy(gameObject);
     }
     private Vector3 GetRandomPoint(int minPriority = 0,int maxPriority = int.MaxValue)
@@ -74,7 +78,7 @@ public class SeekerAI : MonoBehaviour,IQuest
     private bool TargetInFieldOfView(Vector3 target)
     {
         Vector3 directionToTarget = (target - transform.position).normalized;
-        if (!Physics.Linecast(transform.position + transform.up * 2f, target,_obstacleMask) && Vector3.Angle(transform.forward, directionToTarget) < _angleOfView / 2)
+        if (!Physics.Linecast(transform.position + transform.up * 2.25f, target,_obstacleMask) && Vector3.Angle(transform.forward, directionToTarget) < _angleOfView / 2 && Vector3.Distance(target,transform.position) < _flairDistance * 10)
         {
             return _canSee;
         }
@@ -97,18 +101,68 @@ public class SeekerAI : MonoBehaviour,IQuest
         StopCoroutine("CheckPosition");
         StartCoroutine(CheckPosition(position));
     }
-
+    public void Blind(float time)
+    {
+        StopAllCoroutines();
+        _smoothConnector.Stop();
+        _agent.speed = 0;
+        StartCoroutine(StunWait(time));
+    }
+    public IEnumerator StunWait(float time)
+    {
+        yield return new WaitForSeconds(time);
+        StartCoroutine(Seek());
+        StartCoroutine(Chase());
+    }
+    public void LostPlayer(float time)
+    {
+        StopAllCoroutines();
+        _active = false;
+        SaveLoadControl.blockSaving = false;
+        _smoothConnector.Stop();
+        _agent.speed = _speedSeek;
+        _agent.SetDestination(_walkOutPosition.position);
+        StartCoroutine(DeactivateWithTime(time));
+    }
+    public IEnumerator DeactivateWithTime(float time)
+    {
+        yield return new WaitForSeconds(time);
+        DisableQuest();
+    }
+    public void StopChaseSeek()
+    {
+        StopAllCoroutines();
+        _active = false;
+        SaveLoadControl.blockSaving = false;
+        _smoothConnector.Stop();
+        _agent.speed = _speedSeek;
+        _agent.SetDestination(_walkOutPosition.position);
+    }
+    public void ContinueChaseSeek()
+    {
+        _agent.speed = _speedSeek;
+        _stepsSource.clip = _audioDictionary.Find("Walk");
+        _stepsSource.Play();
+        _smoothConnector.SetAudio(_audioDictionary.Find("Seek"), 0.05f);
+        _active = true;
+        StartCoroutine(Seek());
+        StartCoroutine(Chase());
+    }
     private IEnumerator Seek()
     {
         if (_agent.speed == _speedChase) { yield break; }
         _agent.isStopped = false;
         Vector3 currentPoint = GetRandomPoint();
         _agent.SetDestination(currentPoint);
-        yield return new WaitUntil(() => Vector3.Distance(transform.position, currentPoint) < 1f);
+        while (Vector3.Distance(transform.position, currentPoint) > 2f)
+        {
+            yield return new WaitForEndOfFrame();
+        }
         if (_agent.speed == _speedChase) { yield break; }
         _agent.isStopped = true;
-        yield return new WaitForSeconds(3f);
-        if (_agent.speed == _speedChase) { yield break; }
+        _agent.speed = 0;
+        yield return new WaitForSeconds(5f);
+        if (_agent.speed == _speedChase) { yield break; } else { _agent.speed = _speedSeek; }
         StartCoroutine(Seek());
     }
     public IEnumerator CheckPosition(Vector3 position)
@@ -116,12 +170,19 @@ public class SeekerAI : MonoBehaviour,IQuest
         if (_chasing) { yield break; }
         StopCoroutine("Seek");
         _agent.isStopped = false;
-        _agent.SetDestination(position);
         _agent.speed = _speedChase;
-        yield return new WaitUntil(() => Vector3.Distance(transform.position, position) < 3f);
+        Debug.Log("Going to find noise...");
+        _agent.SetDestination(position);
+        while (Vector3.Distance(transform.position, position) > 3f)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        Debug.Log("Finded!");
         if (_chasing) { yield break; }
+        _agent.speed = 0;
         _agent.isStopped = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(3f);
+        Debug.Log("End witing");
         if (_chasing) { yield break; }
         _agent.speed = _speedSeek;
         StartCoroutine(Seek());
@@ -134,14 +195,14 @@ public class SeekerAI : MonoBehaviour,IQuest
         StopCoroutine("Seek");
         _agent.isStopped = false;
         _chasing = true;
-        float timer = 5f;
+        float timer = _timeToChase;
         _agent.speed = _speedChase;
         bool inView = TargetInFieldOfView(PlayerControl.Instance.transform.position) || TargetNear(PlayerControl.Instance.transform.position) || _alwaysChase;
         Vector3 lastPosition = PlayerControl.Instance.transform.position;
         while (timer > 0)
         {
             inView = TargetInFieldOfView(PlayerControl.Instance.transform.position) || TargetNear(PlayerControl.Instance.transform.position) || _alwaysChase;
-            if (timer > 4.5f)
+            if (timer > _timeToChase * 0.9f)
             {
                 _agent.SetDestination(PlayerControl.Instance.transform.position);
                 lastPosition = PlayerControl.Instance.transform.position;
@@ -150,7 +211,8 @@ public class SeekerAI : MonoBehaviour,IQuest
             {
                 _agent.SetDestination(lastPosition);
             }
-            timer = inView ? 5f : timer - Time.deltaTime;
+            timer = inView ? _timeToChase : timer - Time.deltaTime;
+            Debug.Log("Agent Last Position: " + lastPosition);
             yield return new WaitForEndOfFrame();
         }
         _agent.speed = _speedSeek;
@@ -165,24 +227,32 @@ public class SeekerAI : MonoBehaviour,IQuest
         {
             SaveLoadControl.blockSaving = true;
         }
-        if (Time.timeScale == 0) { _stepsSource.Pause(); } else { _stepsSource.UnPause(); }
-        if (_agent.speed == _speedChase && _agent.speed != _speedSeek)
+        else
+        {
+            _animator.SetBool("Walk", true);
+            _animator.SetBool("Run", false);
+        }
+        if (Time.timeScale == 0 || !_active) { _stepsSource.Pause(); return; } else { _stepsSource.UnPause(); }
+        if (_agent.speed == _speedChase && _agent.speed != _speedSeek || _alwaysChase)
         {
             _stepsSource.pitch = 1.5f;
             _animator.SetBool("Walk",false);
             _animator.SetBool("Run", true);
+            Debug.Log("RUN");
         }
-        else if (_agent.isStopped)
+        else if (_agent.speed == 0 || _agent.isStopped)
         {
             _stepsSource.pitch = 0f;
             _animator.SetBool("Walk", false);
             _animator.SetBool("Run", false);
+            Debug.Log("STATE");
         }
         else
         {
             _stepsSource.pitch = 0.5f;
             _animator.SetBool("Walk", true);
             _animator.SetBool("Run", false);
+            Debug.Log("WALK " + _agent.speed);
         }
     }
     private void OnTriggerStay(Collider other)

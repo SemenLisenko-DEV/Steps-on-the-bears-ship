@@ -1,6 +1,8 @@
 using ActionDatabase;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,23 +30,36 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private float _maxStamina = 100f;
     [SerializeField] private Animator _cameraAnimator;
     [SerializeField] private float _fallTime = 1;
+    [SerializeField] private Image _staminaImage;
     [HideInInspector] public float stamina = 100f;
     public float moveSpeed = 5.0f;
     private bool _runBreaked = false;
+    private float _staminaAlphaColor = 1;
     private Vector3 _yDirection = Vector3.up;
 
     [HideInInspector] public float speedMultiplier = 1f;
     [HideInInspector] public string itemId = "";
     private bool _canStand = true;
+
     private AudioSource _audioSource;
     [SerializeField] private AudioSource _voiceSource;
+
     [HideInInspector] public CharacterController controller;
+
     private float _coughTimer = 0f;
+
     private float _crutchTimer = 0;
+
+    public List<string> cardTaken;
+
+    [Header("Информация для взаимодействий")]
+    public TMP_Text actionInfo;
+    [Min(2.5f)]public float showTime = 5f;
     private void Awake()
     {
         Instance = this;
-        stamina = _maxHealth;
+        _staminaImage.color = Color.blue;
+        stamina = _maxStamina;
         Load();
         _regeneration = _maxRegeneration;
         _health = _maxHealth;
@@ -76,9 +91,9 @@ public class PlayerControl : MonoBehaviour
         axisFactor = Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0 ? 1 : 0;
         axisFactor = Input.GetAxis("Horizontal") != 0 && Input.GetAxis("Vertical") != 0 ? 0.65f : axisFactor;
 
-        if (Input.GetButton("Run") && !_runBreaked)
+        if (Input.GetButton("Run") && !_runBreaked && axisFactor != 0)
         {
-            axisFactor *= 1f + Input.GetAxis("Run") / 3;
+            axisFactor *= 1f + Input.GetAxis("Run") / 2.5f;
             stamina -= Time.deltaTime * speedMultiplier * moveSpeed;
             _runBreaked = stamina < 0.05f;
             if (_runBreaked)
@@ -88,15 +103,27 @@ public class PlayerControl : MonoBehaviour
         }
         else
         {
-            stamina += stamina < _maxStamina ? Time.deltaTime : 0;
+            stamina += stamina < _maxStamina ? Time.deltaTime * 5 : 0;
         }
+
+        if (stamina >= _maxStamina)
+        {
+            _staminaAlphaColor = _staminaAlphaColor <= 0 ? 0 : _staminaAlphaColor - Time.deltaTime;
+        }
+        else
+        {
+            _staminaAlphaColor = _staminaAlphaColor >= 1 ? 1 : _staminaAlphaColor + Time.deltaTime * 5;
+        }
+
+        _staminaImage.color = new Color(_staminaImage.color.r, _staminaImage.color.g, _staminaImage.color.b, _staminaAlphaColor);
+        _staminaImage.fillAmount = stamina / _maxStamina;
 
         _cameraAnimator.SetFloat("Speed", axisFactor * speedMultiplier * moveSpeed / _standSpeed);
 
         _canStand = !Physics.Raycast(transform.position + transform.up * controller.height / 2, transform.up, 2f, _obstacleMask);
 
         _audioSource.pitch = Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0? ((moveSpeed * speedMultiplier) / _standSpeed) : 0;
-        _audioSource.pitch *= Input.GetButton("Run") ? 1.2f : 1;
+        _audioSource.pitch *= Input.GetButton("Run") && !_runBreaked ? 1.2f : 1;
 
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
@@ -105,15 +132,20 @@ public class PlayerControl : MonoBehaviour
 
         controller.Move(moveDirection * Time.deltaTime);
         OnMove?.Invoke((transform.forward * verticalInput + transform.right * horizontalInput) * moveSpeed * speedMultiplier * axisFactor * Time.deltaTime);
+
+    }
+    private void LateUpdate()
+    {
+        if(transform.parent != null)
+        {
+            transform.position = new Vector3(transform.position.x, transform.parent.position.y, transform.position.z);
+        }
     }
     public IEnumerator Fall()
     {
-        float t = 0;
-        while (t < _fallTime)
-        {
-            t += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
+        _staminaImage.color = Color.red;
+        yield return new WaitForSeconds(_fallTime);
+        _staminaImage.color = Color.blue;
         _runBreaked = false;
     }
     private IEnumerator Squat()
@@ -178,6 +210,38 @@ public class PlayerControl : MonoBehaviour
         speedMultiplier = 1f;
         _regeneration = _maxRegeneration;
     }
+
+    public void ShowActionInfo(string text)
+    {
+
+    }
+    public IEnumerator ShowActionInfo_Corutine(string text)
+    {
+        actionInfo.text = text;
+        actionInfo.gameObject.SetActive(true);
+        yield return new WaitForSeconds(showTime - 2.5f);
+        float timer = 2.5f;
+        while (timer > 0)
+        {
+            actionInfo.alpha = timer / 2.5f;
+            timer -= Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        actionInfo.gameObject.SetActive(false);
+    }
+    public void SetParent(GameObject parent)
+    {
+        transform.parent = parent.transform;
+    }
+    public void UnParentWithTime(float time)
+    {
+        StartCoroutine(UnParentWithTime_C(time));
+    }
+    public IEnumerator UnParentWithTime_C(float time)
+    {
+        yield return new WaitForSeconds(time);
+        transform.parent = null;
+    }
     public void OnDestroy()
     {
         SaveLoadControl.SaveEvent -= Save;
@@ -189,12 +253,14 @@ public class PlayerControl : MonoBehaviour
         player.position = new Vector_Clear(transform.position);
         player.rotation = new Vector_Clear(transform.rotation);
         player.itemId = ItemPosition.item != null? ItemPosition.item.id : "";
+        player.cardsTaken = cardTaken;
         SaveLoadControl.gameData.player = player;
     }
     public void Load()
     {
         if (SaveLoadControl.gameData.player == null) { return; }
         _health = SaveLoadControl.gameData.player.health;
+        cardTaken = SaveLoadControl.gameData.player.cardsTaken;
         transform.position = SaveLoadControl.gameData.player.position.ToVector3();
         transform.rotation = SaveLoadControl.gameData.player.rotation.ToQuaternion();
         StartCoroutine(WaitForItemLoading());

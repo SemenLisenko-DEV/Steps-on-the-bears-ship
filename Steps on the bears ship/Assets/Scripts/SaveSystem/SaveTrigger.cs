@@ -1,7 +1,6 @@
 using ActionDatabase;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.VFX;
 
 public class SaveTrigger : MonoBehaviour, IQuest
 {
@@ -13,7 +12,7 @@ public class SaveTrigger : MonoBehaviour, IQuest
             bool buffer = SaveLoadControl.blockSaving;
             SaveLoadControl.blockSaving = false;
             _saved = true;
-            SaveLoadControl.Instance.AutoSave();
+            SaveLoadControl.Instance.SaveGame();
             SaveLoadControl.blockSaving = buffer;
         }
     }
@@ -27,7 +26,7 @@ public class SaveTrigger : MonoBehaviour, IQuest
         bool buffer = SaveLoadControl.blockSaving;
         SaveLoadControl.blockSaving = false;
         _saved = true;
-        SaveLoadControl.Instance.AutoSave();
+        SaveLoadControl.Instance.AutoSave(false);
         SaveLoadControl.blockSaving = buffer;
     }
     public void DisableQuest()

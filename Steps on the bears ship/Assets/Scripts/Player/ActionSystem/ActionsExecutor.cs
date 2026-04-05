@@ -89,7 +89,7 @@ public class ActionsExecutor : MonoBehaviour
         stopExecuting = false;
         if (hit.transform.tag != "DoNotPull")
         {
-            while (Input.GetButton("MouseLeft") && Vector3.Distance(hitPoint.transform.position,_camera.transform.position) < _maxRange + 2 && !stopExecuting)
+            while (Input.GetButton("MouseLeft") && Vector3.Distance(hitPoint.transform.position,_camera.transform.position) < _maxRange + 2 && !stopExecuting && Time.timeScale != 0)
             {
                 CameraControl.Instance.LookAt(hitPoint.transform.position);
                 SetAim(3, _spriteDictionary.Find("bearHand_Close"));
@@ -100,6 +100,8 @@ public class ActionsExecutor : MonoBehaviour
         if (hitPoint != null) { Destroy(hitPoint); }
         CameraControl.Instance.block = false;
         actionExecuting = false;
+
+        yield return new WaitForEndOfFrame();
         StartCoroutine(RayExecute());
     }
     public IEnumerator Throw()

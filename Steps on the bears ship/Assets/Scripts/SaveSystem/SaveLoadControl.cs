@@ -1,12 +1,12 @@
 using ActionDatabase;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System;
-using TMPro;
 public class SaveLoadControl : MonoBehaviour
 {
     public struct GameData
@@ -24,6 +24,10 @@ public class SaveLoadControl : MonoBehaviour
         public List<ValveData> valves;
         public List<QuestData> quests;
         public List<FlashLightData> flashLights;
+        public List<CardData> cardDatas;
+        public List<CardCheckerData> checkerDatas;
+        public List<ActiveLoaderData> activeLoaderDatas;
+        public List<EmiterData> emiterDatas;
         public T GetData<T>(ref List<T> list, string key) where T : DataObject
         {
             if (list == null) { list = new List<T>(); return null; }
@@ -64,6 +68,10 @@ public class SaveLoadControl : MonoBehaviour
             triggers = data.triggers;
             valves = data.valves;
             quests = data.quests;
+            flashLights = data.flashLights;
+            cardDatas = data.cardDatas;
+            activeLoaderDatas = data.activeLoaderDatas;
+            emiterDatas = data.emiterDatas;
         }
     }
     public static SaveLoadControl Instance;
@@ -72,6 +80,7 @@ public class SaveLoadControl : MonoBehaviour
     public static string folder = "/Saves";
     public static string fileName = "";
     public static bool blockSaving = false;
+    private static int blockersCount = 0;
     public static Action SaveEvent;
     [SerializeField,Header("Нужные объекты в меню")] private GameObject _continueButton;
     [SerializeField] private TMP_Text _continueButtonText;
@@ -113,10 +122,15 @@ public class SaveLoadControl : MonoBehaviour
         {
             _allertExit.SetActive(blockSaving);
         }
+        if (blockersCount > 0)
+        {
+            blockSaving = true;
+
+        }
     }
     public static void SaveData()
     {
-        if(blockSaving) { return; }
+        if(blockSaving || blockersCount > 0) { return; }
         SaveSettings();
         try
         {
@@ -139,6 +153,7 @@ public class SaveLoadControl : MonoBehaviour
             string path = Application.streamingAssetsPath + folder + "/" + fileName;
             string json = File.ReadAllText(path);
             gameData = JsonConvert.DeserializeObject<GameData>(json);
+            settings.lastSave = fileName;
         }
         catch
         {
@@ -174,7 +189,7 @@ public class SaveLoadControl : MonoBehaviour
     }
     public void SaveGame()
     {
-        if (blockSaving)
+        if (blockSaving || blockersCount > 0)
         { 
             StartCoroutine(ShowSaveAllertUI());
             return;
@@ -185,6 +200,7 @@ public class SaveLoadControl : MonoBehaviour
         SaveEvent.Invoke();
         SaveData();
         SaveSettings();
+        SavesList.Refresh();
     }
     public static void LoadGame()
     {
@@ -198,9 +214,9 @@ public class SaveLoadControl : MonoBehaviour
         LoadData();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    public void AutoSave()
+    public void AutoSave(bool ignoreBlock)
     {
-        if(blockSaving)
+        if((blockSaving || blockersCount > 0) && !ignoreBlock)
         {
             StartCoroutine(ShowSaveAllertUI());
             return;
@@ -223,10 +239,11 @@ public class SaveLoadControl : MonoBehaviour
         {
             File.WriteAllText(path, json);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.LogWarning(ex);
         }
+        SavesList.Refresh();
     }
     public void ExitToMain()
     {
@@ -242,6 +259,7 @@ public class SaveLoadControl : MonoBehaviour
         Time.timeScale = 1.0f;
         settings.lastSave = fileName;
         SaveSettings();
+        AutoSave(false);
         Application.Quit();
     }
     public static void SaveSettings()
@@ -299,29 +317,66 @@ public class SaveLoadControl : MonoBehaviour
         RenderTexture.ReleaseTemporary(targetTexture);
    
     }
-    public void CreateSavePlayer()
+    public void CreateSavePlayer(bool startImmediately)
     {
-        Debug.Log("Created player save");
+        settings.playerSavesCount += 1;
+        string saveName = _nameField.text;
+        if (saveName == "")
+        {
+            saveName = "{QuickSaveName}";// + settings.playerSavesCount;
+        }
+        _nameField.text = "";
+        Debug.Log("Created player save: " + saveName);
         string file = "playerSave" + settings.playerSavesCount + ".json";
         string path = Application.streamingAssetsPath + folder + "/" + file;
         File.Create(path).Close();
         GameData buffer = new GameData();
-        buffer.name = _nameField.text;
+        buffer.name = saveName;
         buffer.date = DateTime.Now.ToString();
         buffer.screenPath = "playerSave" + settings.playerSavesCount + "Screen.png";
         string json = JsonConvert.SerializeObject(buffer);
         File.WriteAllText(path, json);
         Save save = new Save();
-        save.name = _nameField.text;
+        save.name = saveName;
         save.date = DateTime.Now.ToString();
         save.fileName = file;
         save.spritePath = buffer.screenPath;
         settings.savesLinks.Add(save);
-        fileName = file;
         SaveSettings();
         SavesList.Refresh();
+        if(startImmediately)
+        {
+            fileName = file;
+            LoadGame();
+        }
+    }
+    public void CreateSavePlayer(TMP_InputField nameField)
+    {
         settings.playerSavesCount += 1;
-
+        string saveName = nameField.text;
+        if (saveName == "")
+        {
+            saveName = "{QuickSaveName}";// + settings.playerSavesCount;
+        }
+        nameField.text = "";
+        Debug.Log("Created player save: "  + saveName);
+        string file = "playerSave" + settings.playerSavesCount + ".json";
+        string path = Application.streamingAssetsPath + folder + "/" + file;
+        File.Create(path).Close();
+        GameData buffer = new GameData();
+        buffer.name = saveName;
+        buffer.date = DateTime.Now.ToString();
+        buffer.screenPath = "playerSave" + settings.playerSavesCount + "Screen.png";
+        string json = JsonConvert.SerializeObject(buffer);
+        File.WriteAllText(path, json);
+        Save save = new Save();
+        save.name = saveName;
+        save.date = DateTime.Now.ToString();
+        save.fileName = file;
+        save.spritePath = buffer.screenPath;
+        settings.savesLinks.Add(save);
+        SaveSettings();
+        SavesList.Refresh();
     }
     public void CreateAutoSave()
     {
@@ -351,12 +406,12 @@ public class SaveLoadControl : MonoBehaviour
         save.fileName = "autoSave.json";
         save.spritePath = buffer.screenPath;
         settings.savesLinks.Add(save);
-        fileName = "autoSave.json";
-        SaveSettings();
-        if (SceneManager.GetActiveScene().name == "MainMenu")
+        if(fileName == "")
         {
-            SavesList.Refresh();
+            fileName = "autoSave.json";
         }
+        SaveSettings();
+        SavesList.Refresh();
     }
     public static void DeleteSave(string saveFileName)
     {
@@ -372,6 +427,28 @@ public class SaveLoadControl : MonoBehaviour
         if (fileName == saveFileName) { fileName = ""; }
         settings.savesLinks.Remove(saveData);
         SaveSettings();
+    }
+    public void BlockSaving()
+    {
+        blockersCount++;
+    }
+    public void UnBlockSaving()
+    {
+        blockersCount -= blockersCount <= 0? 0 : 1;
+        if (blockersCount <= 0)
+        {
+            blockSaving = false;
+        }
+    }
+    public void BlockForTime(float time)
+    {
+        StartCoroutine(BlockForTime_C(time));
+    }
+    public IEnumerator BlockForTime_C(float time)
+    {
+        BlockSaving();
+        yield return new WaitForSeconds(time);
+        UnBlockSaving();
     }
     public void JustLoadScene(string name)
     {

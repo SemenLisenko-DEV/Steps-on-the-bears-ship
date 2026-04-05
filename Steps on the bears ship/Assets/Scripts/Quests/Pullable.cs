@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 [RequireComponent(typeof(Rigidbody))]
 public class Pullable : MonoBehaviour,IAction
 {
@@ -21,6 +22,8 @@ public class Pullable : MonoBehaviour,IAction
     [SerializeField] private Vector3 _startPositon;
     [SerializeField] private float _speedIntake = 1f;
     [SerializeField] private float _pitchMultiplier;
+    public UnityEvent onPull;
+    public UnityEvent onDepull;
 
     private Rigidbody _rb;
     public void Awake()
@@ -39,19 +42,21 @@ public class Pullable : MonoBehaviour,IAction
     public IEnumerator Pull()
     {
         PlayerControl.OnMove += Move;
-        _audioSource.clip = _audioDictionary.Find("Pull");
-        _audioSource.loop = true;
-        _audioSource.Play();
+        onPull?.Invoke();
+        //_audioSource.clip = _audioDictionary.Find("Pull");
+        //_audioSource.loop = true;
+        //_audioSource.Play();
         while (ActionsExecutor.actionExecuting)
         {
             PlayerControl.Instance.speedMultiplier = _speedIntake;
             yield return new WaitForFixedUpdate();
         }
+        onDepull?.Invoke();
         PlayerControl.OnMove -= Move;
         _rb.linearVelocity = Vector3.zero;
         _audioSource.loop = false;
         _audioSource.pitch = 1f;
-        _audioSource.Stop();
+        //_audioSource.Stop();
         ActionsExecutor.stopExecuting = true;
         PlayerControl.Instance.speedMultiplier = 1f;
         yield break;

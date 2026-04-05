@@ -5,4 +5,9 @@ public class QuitOutTheGame : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void OpenLink(string link)
+    {
+        Application.OpenURL(link);
+    }
 }

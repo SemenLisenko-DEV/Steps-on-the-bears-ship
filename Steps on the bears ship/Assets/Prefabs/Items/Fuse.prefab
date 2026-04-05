@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 42905439005077412}
   - component: {fileID: 4298147218346857501}
   - component: {fileID: 2034555625982057594}
-  - component: {fileID: 260642915406637286}
+  - component: {fileID: 2031547016895714134}
   m_Layer: 6
   m_Name: Fuse
   m_TagString: DoNotPull
@@ -97,6 +97,8 @@ MonoBehaviour:
       value: {fileID: 8300000, guid: 4684c20970fb35f469ce69448c18b32f, type: 3}
     - key: Hit
       value: {fileID: 8300000, guid: 7eb201c2e39b7454685ed8106c5eb193, type: 3}
+  _noisePower: 20
+  _noiseVolume: 1
   rigidBody: {fileID: 0}
   handler: {fileID: 0}
   audioSource: {fileID: 2034555625982057594}
@@ -113,7 +115,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 4684c20970fb35f469ce69448c18b32f, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.4
+  m_Volume: 0.75
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -141,8 +143,8 @@ AudioSource:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.24200523
-      value: 0.31584167
+      time: 0.17256248
+      value: 0.39782715
       inSlope: -0.85398453
       outSlope: -0.85398453
       tangentMode: 0
@@ -215,8 +217,8 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!136 &260642915406637286
-CapsuleCollider:
+--- !u!64 &2031547016895714134
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -233,11 +235,10 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.1
-  m_Height: 0.4
-  m_Direction: 0
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2534964839176971238, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
 --- !u!1001 &9050984551156692278
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -260,7 +261,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_LocalRotation.x
@@ -268,7 +269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.7071068
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_LocalRotation.z
@@ -280,7 +281,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -293,7 +294,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c42ac5be9ce1bf429ebab4d5175cff0, type: 2}
+      objectReference: {fileID: 2100000, guid: 19c53fa5c7697524f8fb6033e412bd52, type: 2}
     - target: {fileID: 919132149155446097, guid: 0298df1fdd0f94d4e9c048487110770a, type: 3}
       propertyPath: m_Name
       value: BeeFuse

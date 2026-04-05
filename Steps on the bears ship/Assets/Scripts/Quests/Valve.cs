@@ -17,8 +17,8 @@ public class Valve : MonoBehaviour,IAction
     public static List<Valve> valves = new List<Valve>();
 
     [SerializeField] private float _sensative = 1f;
+    [SerializeField] private float _noisePower = 10f;
     [SerializeField] private int _revolutCount = 1;
-    [SerializeField] private GameObject _quest;
     [SerializeField] private UnityEvent _onComplite;
     [SerializeField] private AudioDictionary _audioDictionary;
     private float _angle = 0;
@@ -48,11 +48,11 @@ public class Valve : MonoBehaviour,IAction
             transform.Rotate(0, 0.0f, (mouseX + mouseY) * _sensative);
             yield return new WaitForEndOfFrame();
         }
-        if (_angle / 360 >= _revolutCount && _quest != null)
+        if (_angle / 360 >= _revolutCount && _onComplite != null)
         {
             complited = true;
             _onComplite.Invoke();
-            Noise.MakeNoise(transform.position, 20f,_audioDictionary.Find("complite"));
+            Noise.MakeNoise(transform.position, _noisePower, _audioDictionary.Find("complite"));
         }
         yield break;
     }

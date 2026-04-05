@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 namespace ActionDatabase
@@ -18,6 +19,14 @@ namespace ActionDatabase
     {
         all = 0,
         anything = 1,
+        allways = 2,
+
+    }
+    [Serializable]
+    public enum ActionType
+    {
+        switchT = 0,
+        button = 1,
 
     }
     [Serializable]
@@ -40,6 +49,7 @@ namespace ActionDatabase
         {
             public string key;
             public AudioClip value;
+            public float audioOffest;
         }
         public AudioPair[] elements;
         public AudioClip Find(string key)
@@ -54,12 +64,27 @@ namespace ActionDatabase
                 {
                     if (elements[i].value == null)
                     {
-                        Resources.Load<AudioClip>("Audio/MisingAudio");
+                        return Resources.Load<AudioClip>("Audio/MisingAudio");
                     }
                     return elements[i].value;
                 }
             }
             return Resources.Load<AudioClip>("Audio/MisingAudio");
+        }
+        public float FindOffest(string key)
+        {
+            if (IsEmpty())
+            {
+                return 0;
+            }
+            for (int i = 0; i < elements.Length; i++)
+            {
+                if (elements[i].key == key)
+                {
+                    return elements[i].audioOffest;
+                }
+            }
+            return 0;
         }
         public bool IsEmpty()
         {
@@ -198,6 +223,7 @@ namespace ActionDatabase
         public float health;
         public string itemId;
         public string flashlightId;
+        public List<string> cardsTaken;
     }
     [Serializable]
     public class DataObject
@@ -266,11 +292,13 @@ namespace ActionDatabase
             blockByQuest = animationActivator.blockByQuest;
             status = animationActivator.status;
             currentState = animationActivator.currentState;
+            stateTime = animationActivator.stateTime;
             id = animationActivator.id;
         }
         public bool blockByQuest;
         public bool status;
         public int currentState;
+        public float stateTime;
     }
     [Serializable]
     public class Trigger : DataObject
@@ -313,9 +341,11 @@ namespace ActionDatabase
             actionCanExecute = questControl.actionCanExecute;
             complited = questControl.complited;
             questCount = questControl.questCount;
+            rechageBlock = questControl.rechageBlock;
             id = questControl.id;
         }
         public int questCount;
+        public bool rechageBlock;
         public bool actionCanExecute;
         public bool complited = false;
     }
@@ -329,9 +359,72 @@ namespace ActionDatabase
             isActive = flashlight.isActive;
             position = new Vector_Clear(flashlight.transform.position);
             rotation = new Vector_Clear(flashlight.transform.rotation);
+            id = flashlight.id;
         }
         public bool isActive = false;
         public Vector_Clear position;
+        public Vector_Clear rotation;
+    }
+    public class CardData : DataObject
+    {
+        public CardData()
+        {
+        }
+        public CardData(Card card)
+        {
+            isTaken = card.isTaken;
+            id = card.id;
+        }
+        public bool isTaken = false;
+    }
+    public class CardCheckerData : DataObject
+    {
+        public CardCheckerData()
+        {
+        }
+        public CardCheckerData(CardChecker card)
+        {
+            state = card.state;
+            blocked = card.block;
+            id = card.id;
+        }
+        public bool blocked = false;
+        public bool state = false;
+    }
+    public class ActiveLoaderData : DataObject
+    {
+        public ActiveLoaderData()
+        {
+        }
+        public ActiveLoaderData(ActiveLoader loader)
+        {
+            state = loader.state;
+            id = loader.id;
+        }
+        public bool state = false;
+    }
+    public class EmiterData : DataObject
+    {
+        public EmiterData()
+        {
+        }
+        public EmiterData(Emiter emiter)
+        {
+            disabled = emiter.disabled;
+            disabledTime = emiter.disabledTime;
+            takingBeam = emiter.takingBeam;
+            color = emiter.color;
+            complited = emiter.complited;
+            rotation = emiter.rotation;
+            currentRotation = emiter.currentRotation;
+            id = emiter.id;
+        }
+        public bool disabled;
+        public bool disabledTime;
+        public bool takingBeam;
+        public bool complited;
+        public int currentRotation;
+        public Vector_Clear color;
         public Vector_Clear rotation;
     }
 }

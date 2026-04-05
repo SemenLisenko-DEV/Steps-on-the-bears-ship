@@ -11,6 +11,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     public bool blockByQuest;// отключает возможность активировать нажатием анимацию до выполения задачи
     [HideInInspector] public bool status = false;
     [HideInInspector] public int currentState;
+    [HideInInspector] public float stateTime;
     //дальше не сохранять
 
     [SerializeField] public static List<AnimationActivator> animationActivators = new List<AnimationActivator>();
@@ -31,6 +32,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     }
     public void Update()
     {
+        if(_audioSource == null) {  return; }
         if(Time.timeScale == 0) { _audioSource.Pause(); } else { _audioSource.UnPause(); }
 
     }
@@ -40,12 +42,14 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         {
             blockByQuest = false;
         }
+
         if(_disabledByQuest && !status)
         {
+            Debug.Log("AnimatorActivator: " + id);
             if (!_audioDictionary.IsEmpty())
             {
                 _audioSource.clip = _audioDictionary.Find("True");
-                _audioSource.Play();
+                _audioSource.Play((ulong)(44100 * _audioDictionary.FindOffest("True")));
             }
             _animator.SetBool(boolName, true);
             status = true;
@@ -62,7 +66,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
             if (!_audioDictionary.IsEmpty())
             {
                 _audioSource.clip = _audioDictionary.Find("False");
-                _audioSource.Play();
+                _audioSource.Play((ulong)(44100 * _audioDictionary.FindOffest("False")));
             }
             _animator.SetBool(boolName, false);
             status = false;
@@ -92,7 +96,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
             status = false;
         }
         StartCoroutine(Wait(_waitTime));
-    }
+    } 
     public IEnumerator Wait(float time)
     {
         _wait = true;
@@ -124,6 +128,7 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
     {
         if(Equals(id,"")) { return; }
         currentState = _animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
+        stateTime = _animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
         SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.animationActivators, id);
         SaveLoadControl.gameData.animationActivators.Add(new AnimationActivatorData(this));
     }
@@ -134,7 +139,8 @@ public class AnimationActivator : MonoBehaviour, IAction,IQuest
         blockByQuest = animationActivator.blockByQuest;
         status = animationActivator.status;
         currentState = animationActivator.currentState;
+        stateTime = animationActivator.stateTime;
         _animator.SetBool(boolName, status);
-        _animator.Play(currentState);
+        _animator.Play(currentState,-1,stateTime);
     }
 }

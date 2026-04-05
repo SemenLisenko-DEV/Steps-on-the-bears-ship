@@ -124,9 +124,9 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Local: 1
-    - _Metalic: 0.6
+    - _Metalic: 0.5
     - _Metallic: 0.5
-    - _Normal_High: 0.01
+    - _Normal_High: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0

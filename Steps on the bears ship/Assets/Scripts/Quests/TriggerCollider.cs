@@ -17,6 +17,7 @@ public class TriggerCollider : MonoBehaviour
         if (!_triggered || _multiply)
         {
             _triggered = true;
+            Debug.Log("Trigger: " + id);
             action.Invoke();
         }
     }

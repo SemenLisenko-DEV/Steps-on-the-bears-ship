@@ -22,7 +22,7 @@ public class SmoothConnector : MonoBehaviour
             _audioSource.UnPause();
         }
     }
-    private IEnumerator AudioFadeIn(AudioClip clip, float speed = 1f)
+    private IEnumerator AudioFadeIn(AudioClip clip, float speed = 0.25f)
     {
         _audioSource.clip = clip;
         _audioSource.Play();
@@ -34,7 +34,7 @@ public class SmoothConnector : MonoBehaviour
         }
         yield break;
     }
-    private IEnumerator AudioFadeOut(AudioClip clip, float speed = 1f)
+    private IEnumerator AudioFadeOut(AudioClip clip, float speed = 0.25f)
     {
         while (_audioSource.volume > 0)
         {
@@ -48,7 +48,7 @@ public class SmoothConnector : MonoBehaviour
         }
         yield break;
     }
-    public void SetAudio(AudioClip clip, float speed = 1f)
+    public void SetAudio(AudioClip clip, float speed = 0.25f)
     {
         StopAllCoroutines();
         if (_isPlaying)
@@ -61,7 +61,7 @@ public class SmoothConnector : MonoBehaviour
             _isPlaying = true;
         }
     }
-    public void SetAudio(string clip, float speed = 1f)
+    public void SetAudio(string clip, float speed = 0.25f)
     {
         StopAllCoroutines();
         if (_isPlaying)
@@ -77,6 +77,6 @@ public class SmoothConnector : MonoBehaviour
     public void Stop()
     {
         _isPlaying = false;
-        StartCoroutine(AudioFadeOut(null, 1f));
+        StartCoroutine(AudioFadeOut(null, 0.25f));
     }
 }

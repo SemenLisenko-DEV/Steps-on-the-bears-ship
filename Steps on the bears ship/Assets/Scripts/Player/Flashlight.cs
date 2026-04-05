@@ -17,6 +17,7 @@ public class Flashlight : MonoBehaviour, IAction
     private CapsuleCollider _capsuleCollider;
     private Rigidbody _rb;
     private AudioSource _audioSource;
+    [SerializeField] private Light _light;
     public void Awake()
     {
         SaveLoadControl.SaveEvent += Save;
@@ -49,20 +50,31 @@ public class Flashlight : MonoBehaviour, IAction
     }
     public IEnumerator WorkCorutina()
     {
-        yield return new WaitUntil(() => Input.GetButtonDown("FlashLight") || isActive);
-        yield return new WaitForEndOfFrame();
-
-        while (!Input.GetButtonDown("FlashLight"))
+        yield return new WaitForEndOfFrame();   
+        if (isActive)
         {
-            //float bright = UnityEngine.Random.Range(minBright,maxBright);
-            //int inc = UnityEngine.Random.Range(0,100);
-            //if(inc < 5f)
-            //{
-            //    br
-            //}
-            yield return new WaitForEndOfFrame();
+            yield return new WaitUntil(() => Input.GetButtonUp("FlashLight"));
+            while (!Input.GetButtonDown("FlashLight"))
+            {
+                float bright = UnityEngine.Random.Range(minBright, maxBright);
+                int inc = UnityEngine.Random.Range(0, 100);
+                if (inc < 5f)
+                {
+                    bright = 0;
+                }
+                _light.intensity -= (_light.intensity - bright) * Time.deltaTime;
+                yield return new WaitForEndOfFrame();
+            }
+            isActive = false;
+            StartCoroutine(WorkCorutina());
+            yield break;
         }
-        yield return new WaitUntil(() => Input.GetButtonUp("FlashLight"));
+        else
+        {
+            _light.intensity = 0;
+        }
+        yield return new WaitUntil(() => Input.GetButtonDown("FlashLight"));
+        isActive = true;
         StartCoroutine(WorkCorutina());
     }
     public IEnumerator DropChecker()
@@ -85,6 +97,7 @@ public class Flashlight : MonoBehaviour, IAction
         {
             SaveLoadControl.gameData.player.flashlightId = id;
         }
+        SaveLoadControl.gameData.Remove(ref SaveLoadControl.gameData.flashLights,id);
         SaveLoadControl.gameData.flashLights.Add(new FlashLightData(this));
     }
     public void Load()

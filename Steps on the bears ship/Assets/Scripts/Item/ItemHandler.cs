@@ -18,6 +18,7 @@ public class ItemHandler : MonoBehaviour,IAction
 
     [SerializeField] public AudioDictionary audioDictionary;
     [SerializeField] private bool canTakeOut = false;
+    public bool canTakeIn = true;
     [SerializeField] private bool _triggerOnTakeOut = false;
     [SerializeField] public Transform _itemPosition;
     public ItemType allowedType;
@@ -37,7 +38,7 @@ public class ItemHandler : MonoBehaviour,IAction
     }
     public void StartEvent()
     {
-        if (ItemPosition.haveItem && item == null) 
+        if (ItemPosition.haveItem && item == null && canTakeIn) 
         {
             if (ItemPosition.item.itemType == allowedType && (!isTriggered || _triggerMultiply))
             {
@@ -103,7 +104,7 @@ public class ItemHandler : MonoBehaviour,IAction
     }
     public void Save()
     {
-        if (Equals(id, "")) { return; }
+        if (Equals(id, string.Empty)) { return; }
         if (item != null)
         {
             itemId = item.id;

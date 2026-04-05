@@ -21,6 +21,8 @@ public class Item : MonoBehaviour, IAction
 
     public ItemType itemType;
     [SerializeField] private AudioDictionary _audioClips;
+    [SerializeField] private float _noisePower = 10f;
+    [SerializeField] private float _noiseVolume = 0.75f;
     [HideInInspector] public Rigidbody rigidBody;
 
     public ItemHandler handler = null;
@@ -66,20 +68,24 @@ public class Item : MonoBehaviour, IAction
     public IEnumerator FollowPlayer()
     {
         yield return new WaitUntil(() => ItemPosition._transform != null);
+        transform.parent = ItemPosition._transform;
+        rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
         while (true)
         {
             float speed = Vector3.Distance(transform.position, ItemPosition._transform.position) + 10f;
             speed = speed > 100? 100 : speed;
             rigidBody.linearVelocity = -(transform.position - ItemPosition._transform.position) * speed ;
-            rigidBody.MoveRotation(Quaternion.identity);
+            transform.rotation = ItemPosition._transform.rotation;
             yield return new WaitForEndOfFrame();
         }
     }
     public void Drop()
     {
         Debug.Log(ItemPosition.haveItem + " " + id);
+        transform.parent = null;
         ItemPosition.ItemsDrops -= Drop;
         StopAllCoroutines();
+        rigidBody.constraints = RigidbodyConstraints.None;
         rigidBody.linearVelocity = Vector3.zero;
         rigidBody.angularVelocity = Vector3.zero;
         if(ItemPosition.item == this)
@@ -133,7 +139,7 @@ public class Item : MonoBehaviour, IAction
     private void OnCollisionEnter(Collision collision)
     {
         if(isPickUp || handler != null) { return; }
-        Noise.MakeNoise(transform.position, 20f, _audioClips.Find("Hit"));
+        Noise.MakeNoise(transform.position, _noisePower, _audioClips.Find("Hit"), _noiseVolume, _noisePower / 2f);
     }
     private void OnDestroy()
     {
