@@ -10,7 +10,6 @@ public class Emiter : MonoBehaviour,IAction
 
     //сохранить:
     [HideInInspector] public bool disabled = false;
-    [HideInInspector] public bool disabledTime = false;
     [HideInInspector] public bool takingBeam = false;
     [HideInInspector] public bool complited = false;
     [HideInInspector] public int currentRotation = 0;
@@ -35,7 +34,7 @@ public class Emiter : MonoBehaviour,IAction
         emitersFamily.emiters.Add(this);
         Load();
         SaveLoadControl.SaveEvent += Save;
-        if (disabled && !disabledTime)
+        if (disabled)
         {
             DeleteAllBeams();
             return;
@@ -102,9 +101,10 @@ public class Emiter : MonoBehaviour,IAction
     }
     public void DrawAllBeams()
     {
-        disabled = false;
-        disabledTime = false;
+        if(disabled) { return; }
+
         CheckComplite();
+
         if (isEnd) { return; }
         Debug.Log(id + " WAS DRAW ALL BEAMS");
         for (int i = 0;i < _emiterExits.Length; i++)
@@ -181,7 +181,6 @@ public class Emiter : MonoBehaviour,IAction
         transform.rotation = emiter.rotation.ToQuaternion();
         currentRotation = emiter.currentRotation;
         disabled = emiter.disabled;
-        disabledTime = emiter.disabledTime;
         if(isEnd && takingBeam)
         {
             emitersFamily.activeEnd++;

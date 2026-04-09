@@ -233,7 +233,7 @@ public class SeekerAI : MonoBehaviour,IQuest
             _animator.SetBool("Run", false);
         }
         if (Time.timeScale == 0 || !_active) { _stepsSource.Pause(); return; } else { _stepsSource.UnPause(); }
-        if (_agent.speed == _speedChase && _agent.speed != _speedSeek || _alwaysChase)
+        if (_chasing)
         {
             _stepsSource.pitch = 1.5f;
             _animator.SetBool("Walk",false);

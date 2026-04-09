@@ -10,6 +10,7 @@ public class SmoothConnector : MonoBehaviour
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
+        _audioSource.loop = true;
     }
     private void Update()
     {

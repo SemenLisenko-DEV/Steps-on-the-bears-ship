@@ -201,6 +201,13 @@ public class PlayerControl : MonoBehaviour
         UICanvasController.instance.SetActiveCanvas("Lose");
         UICanvasController.instance.blockChange = true;
     }
+    public void Win()
+    {
+        StopAllCoroutines();
+        SaveLoadControl.blockSaving = true;
+        UICanvasController.instance.SetActiveCanvas("Win");
+        UICanvasController.instance.blockChange = true;
+    }
     public IEnumerator DisableRegeneration()
     {
         if(_regeneration != _maxRegeneration) { yield break; }

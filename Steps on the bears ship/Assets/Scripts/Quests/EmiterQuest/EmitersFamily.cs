@@ -9,13 +9,18 @@ public class EmitersFamily : MonoBehaviour
     [HideInInspector] public int endCount = 0;
     [HideInInspector] public int activeEnd = 0;
     public UnityEvent onComplite;
-    public void DeleteAllBeamsOfEmiters(bool disableOnTime)
+    public void DeleteAllBeamsOfEmiters()
     {
         foreach(Emiter emiter in emiters)
         {
             emiter.DeleteAllBeams();
-            emiter.disabled = true;
-            emiter.disabledTime = disableOnTime;
+        }
+    }
+    public void SetAllBeamsD(bool disabled)
+    {
+        foreach (Emiter emiter in emiters)
+        {
+            emiter.disabled = disabled;
         }
     }
 }

@@ -411,7 +411,6 @@ namespace ActionDatabase
         public EmiterData(Emiter emiter)
         {
             disabled = emiter.disabled;
-            disabledTime = emiter.disabledTime;
             takingBeam = emiter.takingBeam;
             color = emiter.color;
             complited = emiter.complited;
@@ -420,7 +419,6 @@ namespace ActionDatabase
             id = emiter.id;
         }
         public bool disabled;
-        public bool disabledTime;
         public bool takingBeam;
         public bool complited;
         public int currentRotation;
